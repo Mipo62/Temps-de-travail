@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Planning Michel</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --bg-elevated: #111827;
+      --fg: #e5e7eb;
+      --muted: #9ca3af;
+      --primary: #38bdf8;
+      --primary-soft: rgba(56,189,248,0.15);
+      --danger: #f97373;
+      --border: rgba(148,163,184,0.4);
+      --card-radius: 14px;
+      --shadow-soft: 0 14px 35px rgba(15,23,42,0.65);
+      --shadow-light: 0 8px 20px rgba(15,23,42,0.45);
+      --accent-good: #4ade80;
+      --accent-warn: #eab308;
+    }
+
+    [data-theme="light"] {
+      --bg: #f3f4f6;
+      --bg-elevated: #ffffff;
+      --fg: #0f172a;
+      --muted: #6b7280;
+      --primary: #0ea5e9;
+      --primary-soft: rgba(14,165,233,0.12);
+      --border: rgba(148,163,184,0.5);
+      --shadow-soft: 0 12px 25px rgba(15,23,42,0.15);
+      --shadow-light: 0 6px 18px rgba(15,23,42,0.10);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, rgba(56,189,248,0.18), transparent 55%), var(--bg);
+      color: var(--fg);
+      height: 100%;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      padding: 12px;
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 480px;
+      background: linear-gradient(160deg, rgba(15,23,42,0.94), rgba(15,23,42,0.98));
+      border-radius: 22px;
+      padding: 14px 14px 10px;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(148,163,184,0.45);
+      position: relative;
+      overflow: hidden;
+    }
+
+    [data-theme="light"] .app-shell {
+      background: linear-gradient(160deg, #e5f4ff, #ffffff);
+      border: 1px solid rgba(148,163,184,0.45);
+    }
+
+    /* Header */
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .header-main {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .title-pill {
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(22,163,74,0.16);
+      color: #bbf7d0;
+      border: 1px solid rgba(34,197,94,0.4);
+    }
+
+    [data-theme="light"] .title-pill {
+      background: rgba(16,185,129,0.12);
+      color: #047857;
+      border-color: rgba(16,185,129,0.4);
+    }
+
+    .subtitle {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .chip {
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      border: 1px solid rgba(148,163,184,0.5);
+      background: rgba(15,23,42,0.7);
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    [data-theme="light"] .chip {
+      background: rgba(255,255,255,0.8);
+    }
+
+    .theme-toggle {
+      border: 0;
+      background: rgba(15,23,42,0.8);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 2px;
+      width: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    [data-theme="light"] .theme-toggle {
+      background: rgba(255,255,255,0.8);
+    }
+
+    .theme-toggle span {
+      flex: 1;
+      text-align: center;
+      font-size: 0.7rem;
+      z-index: 1;
+    }
+
+    .theme-thumb {
+      position: absolute;
+      top: 2px;
+      bottom: 2px;
+      width: 50%;
+      border-radius: 999px;
+      background: var(--primary);
+      transition: transform 0.22s ease;
+      box-shadow: 0 0 0 1px rgba(15,23,42,0.45);
+    }
+
+    [data-theme="light"] .theme-thumb {
+      transform: translateX(0);
+    }
+    [data-theme="dark"] .theme-thumb {
+      transform: translateX(100%);
+    }
+
+    /* Tabs */
+
+    .tabs {
+      display: flex;
+      gap: 6px;
+      padding: 4px;
+      background: rgba(15,23,42,0.7);
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.4);
+      margin-bottom: 10px;
+    }
+
+    [data-theme="light"] .tabs {
+      background: rgba(255,255,255,0.9);
+    }
+
+    .tab {
+      flex: 1;
+      border-radius: 999px;
+      padding: 6px 0;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border: 0;
+      cursor: pointer;
+      background: transparent;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .tab span.emoji {
+      font-size: 0.9rem;
+    }
+
+    .tab.active {
+      background: var(--primary-soft);
+      color: var(--fg);
+      box-shadow: 0 4px 10px rgba(15,23,42,0.6);
+    }
+
+    /* Layout */
+
+    .content {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: calc(100vh - 120px);
+      overflow-y: auto;
+      padding-bottom: 4px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .col {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+
+    /* Cards */
+
+    .card {
+      background: radial-gradient(circle at top, rgba(148,163,184,0.18), transparent 50%), var(--bg-elevated);
+      border-radius: var(--card-radius);
+      padding: 10px;
+      border: 1px solid rgba(148,163,184,0.45);
+      box-shadow: var(--shadow-light);
+    }
+
+    [data-theme="light"] .card {
+      background: linear-gradient(160deg, #f9fafb, #ffffff);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 6px;
+    }
+
+    .card-title {
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .badge {
+      font-size: 0.68rem;
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.6);
+      color: var(--muted);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .stat {
+      padding: 6px 6px 5px;
+      border-radius: 10px;
+      background: rgba(15,23,42,0.7);
+      border: 1px solid rgba(148,163,184,0.45);
+    }
+
+    [data-theme="light"] .stat {
+      background: rgba(255,255,255,0.9);
+    }
+
+    .stat-label {
+      font-size: 0.68rem;
+      color: var(--muted);
+      margin-bottom: 3px;
+    }
+
+    .stat-value {
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .stat-sub {
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-top: 1px;
+    }
+
+    .stat-main {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--accent-good);
+    }
+
+    .stat-main.bad {
+      color: var(--danger);
+    }
+
+    /* Formulaire */
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 8px;
+    }
+
+    @media (max-width: 400px) {
+      .field-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .field label {
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    .field .input {
+      width: 100%;
+      padding: 6px 8px;
+      border-radius: 9px;
+      border: 1px solid rgba(148,163,184,0.7);
+      background: rgba(15,23,42,0.9);
+      color: var(--fg);
+      font-size: 0.82rem;
+    }
+
+    [data-theme="light"] .field .input {
+      background: rgba(255,255,255,0.95);
+    }
+
+    .field .input:focus {
+      outline: 2px solid rgba(56,189,248,0.6);
+      outline-offset: 1px;
+    }
+
+    .field .hint {
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    .time-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 6px;
+    }
+
+    @media (max-width: 390px) {
+      .time-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn {
+      flex: 1;
+      border-radius: 999px;
+      border: 0;
+      padding: 7px 0;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+    }
+
+    .btn-primary {
+      background: radial-gradient(circle at top, #38bdf8, #0ea5e9);
+      color: #0b1120;
+      box-shadow: 0 8px 20px rgba(56,189,248,0.45);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid rgba(148,163,184,0.7);
+      color: var(--muted);
+    }
+
+    .btn-danger {
+      background: rgba(248,113,113,0.12);
+      border: 1px solid rgba(248,113,113,0.7);
+      color: #fecaca;
+    }
+
+    [data-theme="light"] .btn-danger {
+      color: #b91c1c;
+    }
+
+    .btn:active {
+      transform: translateY(1px) scale(0.99);
+      box-shadow: none;
+    }
+
+    /* Analyse */
+
+    .pill-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.6);
+      padding: 3px 8px;
+      font-size: 0.7rem;
+      color: var(--muted);
+      background: rgba(15,23,42,0.7);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    [data-theme="light"] .pill {
+      background: rgba(255,255,255,0.9);
+    }
+
+    .period-choices {
+      display: flex;
+      gap: 4px;
+      margin-top: 4px;
+      flex-wrap: wrap;
+    }
+
+    .period-btn {
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.6);
+      padding: 4px 7px;
+      font-size: 0.7rem;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .period-btn.active {
+      background: var(--primary-soft);
+      color: var(--fg);
+      border-color: var(--primary);
+    }
+
+    .period-inputs {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+      flex-wrap: wrap;
+    }
+
+    .period-inputs input {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* Graph */
+
+    .chart-wrapper {
+      position: relative;
+      width: 100%;
+      height: 180px;
+    }
+
+    @media (max-height: 640px) {
+      .chart-wrapper {
+        height: 150px;
+      }
+    }
+
+    .chart-legend {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 4px;
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    .chart-legend span strong {
+      color: var(--fg);
+    }
+
+    .chip-small {
+      font-size: 0.68rem;
+      padding: 2px 5px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.6);
+    }
+
+    /* Sections cachées */
+
+    .view {
+      display: none;
+    }
+    .view.active {
+      display: block;
+    }
+  </style>
+</head>
+<body data-theme="dark">
+<div class="app-shell">
+  <header class="header">
+    <div class="header-main">
+      <div class="title">
+        Bonjour Michel
+        <span class="title-pill">Temps de travail</span>
+      </div>
+      <div class="subtitle">Suivi quotidien & analyse rapide</div>
+    </div>
+    <div class="header-actions">
+      <div class="chip">
+        <span>⚡</span><span>Jour cible 7h30</span>
+      </div>
+      <button id="themeToggle" class="theme-toggle" type="button" aria-label="Changer de thème">
+        <div class="theme-thumb"></div>
+        <span>☀️</span><span>🌙</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="tabs" role="tablist">
+    <button class="tab active" data-view="view-saisie" type="button" role="tab" aria-selected="true">
+      <span class="emoji">📝</span> <span>Saisie</span>
+    </button>
+    <button class="tab" data-view="view-analyse" type="button" role="tab" aria-selected="false">
+      <span class="emoji">📈</span> <span>Analyse</span>
+    </button>
+  </div>
+
+  <main class="content">
+    <!-- Bandeau stats -->
+    <section class="card">
+      <div class="card-header">
+        <div class="card-title">Vue du jour</div>
+        <div class="badge" id="statusBadge">En cours</div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat">
+          <div class="stat-label">Moyenne quotidienne</div>
+          <div class="stat-main" id="avgDay">7,50 h</div>
+          <div class="stat-sub">Cible 7h30</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Total heures période</div>
+          <div class="stat-value" id="totalHours">0 h</div>
+          <div class="stat-sub" id="workedDays">0 jour</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Arrivée moyenne</div>
+          <div class="stat-value" id="avgIn">--</div>
+          <div class="stat-sub">Sur la période</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Départ moyen</div>
+          <div class="stat-value" id="avgOut">--</div>
+          <div class="stat-sub">Sur la période</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Onglet Saisie -->
+    <section id="view-saisie" class="view active">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Saisie rapide</div>
+          <div class="badge">Jour unique</div>
+        </div>
+        <div class="field-grid">
+          <div class="field">
+            <label for="workDate">📅 Date</label>
+            <input id="workDate" class="input" type="date">
+            <div class="hint">Choisis le jour travaillé</div>
+          </div>
+          <div class="field">
+            <label>⏱️ Heures de travail</label>
+            <div class="time-row">
+              <input id="inTime" class="input" type="time">
+              <input id="outTime" class="input" type="time">
+            </div>
+            <div class="hint">Arrivée / Départ</div>
+          </div>
+        </div>
+
+        <div class="field" style="margin-top:8px">
+          <label>Pausé déjeuner (optionnelle)</label>
+          <div class="time-row">
+            <input id="lunchOut" class="input" type="time" placeholder="Départ déj.">
+            <input id="lunchIn" class="input" type="time" placeholder="Retour déj.">
+          </div>
+        </div>
+
+        <div class="btn-row" style="margin-top:10px">
+          <button id="saveDay" class="btn btn-primary" type="button">
+            💾 Sauvegarder
+          </button>
+          <button id="clearDay" class="btn btn-outline btn-danger" type="button">
+            🗑️ Effacer
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Onglet Analyse -->
+    <section id="view-analyse" class="view">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Analyse détaillée</div>
+          <div class="badge">Périodes</div>
+        </div>
+
+        <div class="pill-row" style="margin-bottom:6px">
+          <div class="pill">
+            <span>🎯</span> <span>Heures moyennes par jour</span>
+          </div>
+          <div class="pill">
+            <span>📋</span> <span>Filtre par période</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Période d'analyse</label>
+          <div class="period-choices">
+            <button class="period-btn active" data-period="day" type="button">Jour(s)</button>
+            <button class="period-btn" data-period="week" type="button">Semaine(s)</button>
+            <button class="period-btn" data-period="month" type="button">Mois</button>
+            <button class="period-btn" data-period="year" type="button">Année(s)</button>
+          </div>
+          <div class="period-inputs">
+            <input id="periodFrom" class="input" type="date">
+            <input id="periodTo" class="input" type="date">
+          </div>
+        </div>
+
+        <div class="btn-row" style="margin-top:8px">
+          <button id="refreshStats" class="btn btn-primary" type="button">Mettre à jour</button>
+          <button id="showHistory" class="btn btn-outline" type="button">📋 Historique</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Évolution du temps de travail</div>
+          <div class="badge">Courbe</div>
+        </div>
+        <div class="chart-wrapper">
+          <canvas id="workChart"></canvas>
+        </div>
+        <div class="chart-legend">
+          <span>Moyenne période : <strong id="chartAvg">-- h</strong></span>
+          <span class="chip-small">Cible 7h30</span>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+  const LS_THEME = "planning.michel.theme";
+  const LS_DATA = "planning.michel.data";
+
+  function getStore() {
+    try {
+      return JSON.parse(localStorage.getItem(LS_DATA)) || {};
+    } catch {
+      return {};
+    }
+  }
+
+  function setStore(obj) {
+    localStorage.setItem(LS_DATA, JSON.stringify(obj));
+  }
+
+  function keyFor(dateStr) {
+    return dateStr || "";
+  }
+
+  function computeMinutes(d) {
+    if (!d.in || !d.out) return 0;
+    const [ih, im] = d.in.split(":").map(Number);
+    const [oh, om] = d.out.split(":").map(Number);
+    let total = (oh * 60 + om) - (ih * 60 + im);
+    if (d.lunchOut && d.lunchIn) {
+      const [lh1, lm1] = d.lunchOut.split(":").map(Number);
+      const [lh2, lm2] = d.lunchIn.split(":").map(Number);
+      total -= (lh2 * 60 + lm2) - (lh1 * 60 + lm1);
+    }
+    return Math.max(total, 0);
+  }
+
+  function fmtHours(mins) {
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    return h.toString().padStart(2,"0") + "h" + m.toString().padStart(2,"0");
+  }
+
+  function loadToday() {
+    const today = new Date().toISOString().slice(0,10);
+    document.getElementById("workDate").value = today;
+    const store = getStore();
+    const rec = store[keyFor(today)];
+    document.getElementById("inTime").value = rec?.in || "";
+    document.getElementById("outTime").value = rec?.out || "";
+    document.getElementById("lunchOut").value = rec?.lunchOut || "";
+    document.getElementById("lunchIn").value = rec?.lunchIn || "";
+  }
+
+  function updateGlobalStats() {
+    const store = getStore();
+    const entries = Object.entries(store);
+    if (!entries.length) {
+      document.getElementById("totalHours").textContent = "0 h";
+      document.getElementById("workedDays").textContent = "0 jour";
+      document.getElementById("avgIn").textContent = "--";
+      document.getElementById("avgOut").textContent = "--";
+      document.getElementById("avgDay").textContent = "7,50 h";
+      document.getElementById("chartAvg").textContent = "-- h";
+      document.getElementById("statusBadge").textContent = "En cours";
+      return;
+    }
+    let totalMin = 0;
+    let sumIn = 0, sumOut = 0, cntIn = 0, cntOut = 0;
+    entries.forEach(([k, d]) => {
+      const mins = computeMinutes(d);
+      totalMin += mins;
+      if (d.in) {
+        const [h,m] = d.in.split(":").map(Number);
+        sumIn += h * 60 + m;
+        cntIn++;
+      }
+      if (d.out) {
+        const [h,m] = d.out.split(":").map(Number);
+        sumOut += h * 60 + m;
+        cntOut++;
+      }
+    });
+    const avgDayMin = Math.round(totalMin / entries.length);
+    const avgInMin = cntIn ? Math.round(sumIn / cntIn) : null;
+    const avgOutMin = cntOut ? Math.round(sumOut / cntOut) : null;
+
+    document.getElementById("totalHours").textContent = fmtHours(totalMin);
+    document.getElementById("workedDays").textContent = entries.length + (entries.length > 1 ? " jours" : " jour");
+    document.getElementById("avgDay").textContent = fmtHours(avgDayMin);
+    document.getElementById("chartAvg").textContent = fmtHours(avgDayMin);
+    document.getElementById("avgIn").textContent = avgInMin != null ? fmtTime(avgInMin) : "--";
+    document.getElementById("avgOut").textContent = avgOutMin != null ? fmtTime(avgOutMin) : "--";
+
+    const target = 7 * 60 + 30;
+    const badge = document.getElementById("statusBadge");
+    if (avgDayMin >= target - 10 && avgDayMin <= target + 10) {
+      badge.textContent = "✅ Objectif OK";
+    } else if (avgDayMin < target - 10) {
+      badge.textContent = "⚠️ En dessous";
+    } else {
+      badge.textContent = "⚠️ Au-dessus";
+    }
+  }
+
+  function fmtTime(mins) {
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    return h.toString().padStart(2,"0") + ":" + m.toString().padStart(2,"0");
+  }
+
+  let chart;
+
+  function rebuildChart() {
+    const ctx = document.getElementById("workChart").getContext("2d");
+    const store = getStore();
+    const entries = Object.entries(store)
+      .sort(([a],[b]) => a.localeCompare(b))
+      .filter(([, d]) => computeMinutes(d) > 0);
+
+    const labels = entries.map(([date]) => date.slice(5)); // MM-DD
+    const data = entries.map(([, d]) => computeMinutes(d) / 60);
+
+    if (chart) {
+      chart.data.labels = labels;
+      chart.data.datasets[0].data = data;
+      chart.update();
+      return;
+    }
+
+    chart = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels,
+        datasets: [{
+          label: "Heures travaillées",
+          data,
+          borderColor: "#38bdf8",
+          backgroundColor: "rgba(56,189,248,0.20)",
+          tension: 0.35,
+          fill: true,
+          pointRadius: 3,
+          pointHoverRadius: 5,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            mode: "index",
+            intersect: false,
+            callbacks: {
+              label: (ctx) => ctx.parsed.y.toFixed(2) + " h"
+            }
+          }
+        },
+        scales: {
+          x: {
+            ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 6 },
+            grid: { display: false }
+          },
+          y: {
+            beginAtZero: true,
+            suggestedMax: 10,
+            ticks: {
+              stepSize: 2,
+              callback: (v) => v + " h"
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // Theme init
+  (function initTheme() {
+    const saved = localStorage.getItem(LS_THEME);
+    const root = document.body;
+    if (saved === "light" || saved === "dark") {
+      root.setAttribute("data-theme", saved);
+      document.documentElement.setAttribute("data-theme", saved);
+    } else {
+      root.setAttribute("data-theme", "dark");
+      document.documentElement.setAttribute("data-theme", "dark");
+    }
+  })();
+
+  document.getElementById("themeToggle").addEventListener("click", () => {
+    const current = document.body.getAttribute("data-theme") || "dark";
+    const next = current === "dark" ? "light" : "dark";
+    document.body.setAttribute("data-theme", next);
+    document.documentElement.setAttribute("data-theme", next);
+    localStorage.setItem(LS_THEME, next);
+  });
+
+  // Tabs
+  document.querySelectorAll(".tab").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".tab").forEach(b => {
+        b.classList.toggle("active", b === btn);
+        b.setAttribute("aria-selected", b === btn ? "true" : "false");
+      });
+      const viewId = btn.getAttribute("data-view");
+      document.querySelectorAll(".view").forEach(v => {
+        v.classList.toggle("active", v.id === viewId);
+      });
+    });
+  });
+
+  // Period buttons (visuel uniquement pour l'instant)
+  document.querySelectorAll(".period-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".period-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+    });
+  });
+
+  // Actions
+  document.getElementById("saveDay").addEventListener("click", () => {
+    const date = document.getElementById("workDate").value;
+    const inTime = document.getElementById("inTime").value;
+    const outTime = document.getElementById("outTime").value;
+    const lunchOut = document.getElementById("lunchOut").value;
+    const lunchIn = document.getElementById("lunchIn").value;
+    if (!date || !inTime || !outTime) {
+      alert("Merci de renseigner au moins la date, l'heure d'arrivée et de départ.");
+      return;
+    }
+    const store = getStore();
+    store[keyFor(date)] = { in: inTime, out: outTime, lunchOut, lunchIn };
+    setStore(store);
+    updateGlobalStats();
+    rebuildChart();
+  });
+
+  document.getElementById("clearDay").addEventListener("click", () => {
+    const date = document.getElementById("workDate").value;
+    if (!date) return;
+    const store = getStore();
+    delete store[keyFor(date)];
+    setStore(store);
+    document.getElementById("inTime").value = "";
+    document.getElementById("outTime").value = "";
+    document.getElementById("lunchOut").value = "";
+    document.getElementById("lunchIn").value = "";
+    updateGlobalStats();
+    rebuildChart();
+  });
+
+  document.getElementById("refreshStats").addEventListener("click", () => {
+    updateGlobalStats();
+    rebuildChart();
+  });
+
+  document.getElementById("showHistory").addEventListener("click", () => {
+    const store = getStore();
+    const lines = Object.entries(store)
+      .sort(([a],[b]) => a.localeCompare(b))
+      .map(([date, d]) => {
+        const mins = computeMinutes(d);
+        return `${date} : ${d.in || "--"} - ${d.out || "--"} (${fmtHours(mins)})`;
+      });
+    alert(lines.length ? "Historique :\n\n" + lines.join("\n") : "Aucune donnée enregistrée.");
+  });
+
+  // Init
+  loadToday();
+  updateGlobalStats();
+  rebuildChart();
+</script>
+</body>
+</html>
