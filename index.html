@@ -22,10 +22,17 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, var(--bg-dark) 0%, #1e293b 100%); color: var(--fg); min-height: 100vh; padding: 16px; }
     .container { max-width: 540px; margin: 0 auto; }
+    
+    /* Login Screen */
     #login-view { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 80vh; text-align: center; }
     #app-content { display: none; }
-    .icon-box { background: var(--primary); color: #0a0e1a; width: 42px; height: 42px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 1.2rem; }
-    #save-feedback { text-align: center; color: var(--accent-green); font-weight: 600; margin-top: 15px; opacity: 0; transition: 0.4s; }
+
+    /* Icons style "Blue Buttons" */
+    .icon-box { background: var(--primary); color: #0a0e1a; width: 42px; height: 42px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 1.2rem; box-shadow: 0 4px 10px var(--primary-glow); }
+
+    /* Feedback message centré */
+    #save-feedback { text-align: center; color: var(--accent-green); font-weight: 600; margin-top: 15px; opacity: 0; transition: 0.4s; height: 1.2em; }
+
     .header { margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; }
     .greeting { font-size: 1.5rem; font-weight: 700; background: linear-gradient(135deg, var(--primary) 0%, #a78bfa 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     .card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 20px; }
@@ -33,16 +40,20 @@
     .stat-item { background: var(--bg-elevated); padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border); }
     .stat-label { font-size: 0.7rem; color: var(--fg-muted); text-transform: uppercase; margin-bottom: 4px; }
     .stat-value { font-size: 1.1rem; font-weight: 700; color: var(--primary); }
+    
     .tabs { display: flex; gap: 8px; background: var(--bg-surface); padding: 6px; border-radius: var(--radius-md); margin-bottom: 20px; }
     .tab { flex: 1; padding: 12px; border: none; background: transparent; color: var(--fg-muted); font-weight: 600; cursor: pointer; border-radius: var(--radius-sm); }
     .tab.active { background: var(--primary); color: #0a0e1a; }
+
     .form-group { margin-bottom: 15px; }
     .form-label { display: flex; align-items: center; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; }
     .form-input { width: 100%; padding: 12px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--fg); font-size: 1rem; }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    
     .btn { width: 100%; padding: 14px; border: none; border-radius: var(--radius-sm); font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; }
     .btn-primary { background: var(--primary); color: #0a0e1a; }
     .btn-secondary { background: var(--bg-elevated); color: var(--fg); border: 1px solid var(--border); }
+    
     .chart-container { height: 200px; }
     .view { display: none; }
     .view.active { display: block; }
@@ -53,14 +64,14 @@
   <div class="container">
     <div id="login-view">
       <h1 class="greeting">Working Time</h1>
-      <p style="margin: 20px 0; color: var(--fg-muted)">Synchronisez vos données avec Google</p>
+      <p style="margin: 20px 0; color: var(--fg-muted)">Connectez-vous pour synchroniser vos données</p>
       <button id="loginBtn" class="btn btn-primary">Connexion avec Google</button>
     </div>
 
     <div id="app-content">
       <header class="header">
         <div><h1 class="greeting" id="user-greeting">Bonjour !</h1></div>
-        <img id="user-photo" src="" alt="Photo Profil">
+        <img id="user-photo" src="" alt="Profil" title="Se déconnecter">
       </header>
 
       <div class="tabs">
@@ -81,8 +92,8 @@
       <div id="view-analyse" class="view">
         <div class="card">
           <div class="stats-grid">
-            <div class="stat-item"><div class="stat-label">Total</div><div class="stat-value" id="totalHours">0h</div></div>
-            <div class="stat-item"><div class="stat-label">Moy/J</div><div class="stat-value" id="avgDay">--</div></div>
+            <div class="stat-item"><div class="stat-label">Total Heures</div><div class="stat-value" id="totalHours">0h</div></div>
+            <div class="stat-item"><div class="stat-label">Moy/Jour</div><div class="stat-value" id="avgDay">--</div></div>
           </div>
           <div class="chart-container"><canvas id="workChart"></canvas></div>
         </div>
@@ -95,7 +106,6 @@
     import { getFirestore, collection, doc, setDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
     import { getAuth, signInWithRedirect, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    // Configuration Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyD4anyZUy4jmXG1f6nvuWzphHdtR1mYg2c",
       authDomain: "working-time-33018.firebaseapp.com",
@@ -114,7 +124,7 @@
     let currentUser = null;
     let chart = null;
 
-    // --- AUTHENTIFICATION ---
+    // --- GESTION DE L'AUTHENTIFICATION ---
     onAuthStateChanged(auth, (user) => {
       if (user) {
         currentUser = user;
@@ -130,20 +140,27 @@
       }
     });
 
-    // Événements
-    document.getElementById('loginBtn').addEventListener('click', () => signInWithRedirect(auth, provider));
-    document.getElementById('user-photo').addEventListener('click', () => confirm("Déconnexion ?") && signOut(auth));
+    // Connexion par redirection (beaucoup plus fiable que popup)
+    document.getElementById('loginBtn').addEventListener('click', () => {
+      signInWithRedirect(auth, provider);
+    });
 
-    // --- SYNCHRONISATION ---
+    // Déconnexion
+    document.getElementById('user-photo').addEventListener('click', () => {
+      if(confirm("Voulez-vous vous déconnecter ?")) signOut(auth);
+    });
+
+    // --- SYNCHRONISATION FIRESTORE ---
     function initDataSync() {
       const q = query(collection(db, "planning"), where("userId", "==", currentUser.uid));
       onSnapshot(q, (snapshot) => {
         planningData = {};
         snapshot.forEach(doc => { planningData[doc.id] = doc.data(); });
         updateDisplay();
-      });
+      }, (error) => console.error("Erreur Firestore:", error));
     }
 
+    // --- LOGIQUE METIER ---
     const toMins = (t) => { if(!t) return 0; const [h, m] = t.split(':').map(Number); return h * 60 + m; };
     const formatH = (mins) => `${Math.floor(mins / 60)}h${(mins % 60).toString().padStart(2, '0')}`;
 
@@ -158,30 +175,58 @@
       const entries = Object.entries(planningData).sort((a,b) => a[0].localeCompare(b[0]));
       const values = entries.map(e => e[1]);
       const totalMins = values.reduce((acc, d) => acc + computeMinutes(d), 0);
+      
       document.getElementById('totalHours').textContent = formatH(totalMins);
+      document.getElementById('workedDays'); // Juste pour l'ID
       document.getElementById('avgDay').textContent = values.length ? formatH(Math.round(totalMins / values.length)) : '--';
+      
       updateChart(entries);
     }
 
     function updateChart(entries) {
       const ctx = document.getElementById('workChart').getContext('2d');
-      const labels = entries.slice(-7).map(e => e[0].slice(5));
-      const data = entries.slice(-7).map(e => computeMinutes(e[1]) / 60);
-      if (chart) { chart.data.labels = labels; chart.data.datasets[0].data = data; chart.update(); }
-      else { chart = new Chart(ctx, { type: 'line', data: { labels, datasets: [{ data, borderColor: '#38bdf8', tension: 0.4 }] }, options: { responsive: true, maintainAspectRatio: false } }); }
+      const displayEntries = entries.slice(-7);
+      const labels = displayEntries.map(e => e[0].slice(5));
+      const data = displayEntries.map(e => computeMinutes(e[1]) / 60);
+
+      if (chart) {
+        chart.data.labels = labels;
+        chart.data.datasets[0].data = data;
+        chart.update();
+      } else {
+        chart = new Chart(ctx, {
+          type: 'line',
+          data: { labels, datasets: [{ data, borderColor: '#38bdf8', tension: 0.4, fill: true, backgroundColor: 'rgba(56, 189, 248, 0.1)' }] },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+      }
     }
 
+    // --- ENREGISTREMENT ---
     document.getElementById('saveBtn').addEventListener('click', async () => {
       const date = document.getElementById('workDate').value;
-      const data = { userId: currentUser.uid, in: document.getElementById('inTime').value, out: document.getElementById('outTime').value, lunchOut: document.getElementById('lunchOut').value, lunchIn: document.getElementById('lunchIn').value };
-      if (!date || !data.in || !data.out) return alert("Date et horaires requis !");
+      const data = {
+        userId: currentUser.uid,
+        in: document.getElementById('inTime').value,
+        out: document.getElementById('outTime').value,
+        lunchOut: document.getElementById('lunchOut').value,
+        lunchIn: document.getElementById('lunchIn').value
+      };
+
+      if (!date || !data.in || !data.out) {
+        alert("Veuillez remplir la date et les horaires !");
+        return;
+      }
+
       await setDoc(doc(db, "planning", date), data);
+      
       const feedback = document.getElementById('save-feedback');
-      feedback.textContent = `✅ Enregistré ! (${formatH(computeMinutes(data))})`;
+      feedback.textContent = `✅ Travail du jour : ${formatH(computeMinutes(data))}`;
       feedback.style.opacity = "1";
       setTimeout(() => feedback.style.opacity = "0", 3000);
     });
 
+    // --- NAVIGATION ---
     document.querySelectorAll('.tab').forEach(tab => {
       tab.addEventListener('click', () => {
         document.querySelectorAll('.tab, .view').forEach(el => el.classList.remove('active'));
