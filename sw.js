@@ -1,13 +1,11 @@
 const CACHE_NAME = 'temps-travail-v1';
+// Liste des fichiers à mettre en cache (vérifie bien l'orthographe)
 const ASSETS = [
   './',
   './index.html',
-  // Ajoute ici tes fichiers CSS et JS s'ils ont des noms spécifiques, par ex:
-  // './style.css',
-  // './script.js'
+  './manifest.json'
 ];
 
-// Installation : Mise en cache des fichiers
 self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -16,9 +14,10 @@ self.addEventListener('install', (e) => {
   );
 });
 
-// Stratégie de cache : Réseau d'abord, sinon Cache (pour avoir toujours les dernières modifs)
 self.addEventListener('fetch', (e) => {
   e.respondWith(
-    fetch(e.request).catch(() => caches.match(e.request))
+    caches.match(e.request).then((response) => {
+      return response || fetch(e.request);
+    })
   );
 });
