@@ -53,14 +53,14 @@
   <div class="container">
     <div id="login-view">
       <h1 class="greeting">Working Time</h1>
-      <p style="margin: 20px 0; color: var(--fg-muted)">Connectez-vous pour synchroniser vos heures</p>
+      <p style="margin: 20px 0; color: var(--fg-muted)">Synchronisez vos données avec Google</p>
       <button id="loginBtn" class="btn btn-primary">Connexion avec Google</button>
     </div>
 
     <div id="app-content">
       <header class="header">
         <div><h1 class="greeting" id="user-greeting">Bonjour !</h1></div>
-        <img id="user-photo" src="" alt="Déconnexion">
+        <img id="user-photo" src="" alt="Photo Profil">
       </header>
 
       <div class="tabs">
@@ -95,7 +95,7 @@
     import { getFirestore, collection, doc, setDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
     import { getAuth, signInWithRedirect, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    // Configuration Firebase extraite de ta capture d'écran
+    // Configuration Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyD4anyZUy4jmXG1f6nvuWzphHdtR1mYg2c",
       authDomain: "working-time-33018.firebaseapp.com",
@@ -114,6 +114,7 @@
     let currentUser = null;
     let chart = null;
 
+    // --- AUTHENTIFICATION ---
     onAuthStateChanged(auth, (user) => {
       if (user) {
         currentUser = user;
@@ -129,10 +130,11 @@
       }
     });
 
-    // Écouteurs d'événements corrigés
+    // Événements
     document.getElementById('loginBtn').addEventListener('click', () => signInWithRedirect(auth, provider));
     document.getElementById('user-photo').addEventListener('click', () => confirm("Déconnexion ?") && signOut(auth));
 
+    // --- SYNCHRONISATION ---
     function initDataSync() {
       const q = query(collection(db, "planning"), where("userId", "==", currentUser.uid));
       onSnapshot(q, (snapshot) => {
