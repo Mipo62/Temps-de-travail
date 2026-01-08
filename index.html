@@ -23,29 +23,27 @@
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, var(--bg-dark) 0%, #1e293b 100%); color: var(--fg); min-height: 100vh; padding: 16px; transition: background 0.3s; }
+    body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, var(--bg-dark) 0%, #1e293b 100%); color: var(--fg); min-height: 100vh; padding: 16px; transition: 0.3s; }
     .container { max-width: 540px; margin: 0 auto; }
 
-    /* Login Screen */
+    /* Login & Offline */
     #login-view { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 80vh; text-align: center; }
     #app-content { display: none; }
+    #offline-status { position: fixed; top: 0; left: 0; width: 100%; padding: 4px; text-align: center; font-size: 0.7rem; font-weight: bold; background: var(--accent-green); color: #000; z-index: 1000; display: none; }
+    #offline-status.offline { background: #ef4444; color: #fff; display: block; }
 
-    /* Offline Indicator */
-    #offline-status { position: fixed; top: 10px; right: 10px; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: bold; background: var(--accent-green); color: #fff; z-index: 100; transition: 0.3s; }
-    #offline-status.offline { background: #ef4444; }
+    /* Icons style "Button" */
+    .icon-box { background: var(--primary); color: #0a0e1a; width: 42px; height: 42px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 1.2rem; box-shadow: 0 4px 10px var(--primary-glow); }
 
-    /* Icons style */
-    .icon-box { background: var(--primary-glow); color: var(--primary); width: 40px; height: 40px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 1.2rem; }
-
-    /* Feedback message */
+    /* Feedback */
     #save-feedback { text-align: center; color: var(--accent-green); font-weight: 600; font-size: 0.95rem; margin-top: 15px; min-height: 1.2em; opacity: 0; transition: opacity 0.4s; }
 
-    /* Common UI */
-    .header { margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-start; }
+    /* UI Components */
+    .header { margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; }
     .greeting { font-size: 1.5rem; font-weight: 700; background: linear-gradient(135deg, var(--primary) 0%, #a78bfa 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .card { background: var(--bg-surface); backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 20px; }
-    .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
-    .stat-item { background: var(--bg-elevated); padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border); }
+    .card { background: var(--bg-surface); backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
+    .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 15px; }
+    .stat-item { background: var(--bg-elevated); padding: 14px; border-radius: var(--radius-md); border: 1px solid var(--border); }
     .stat-label { font-size: 0.7rem; color: var(--fg-muted); text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.05em; }
     .stat-value { font-size: 1.1rem; font-weight: 700; color: var(--primary); }
 
@@ -54,33 +52,31 @@
     .tab.active { background: var(--primary); color: #0a0e1a; }
 
     .form-group { margin-bottom: 18px; }
-    .form-label { display: flex; align-items: center; font-size: 0.9rem; font-weight: 500; margin-bottom: 10px; color: var(--fg); }
-    .form-input { width: 100%; padding: 12px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--fg); font-family: inherit; font-size: 1rem; }
+    .form-label { display: flex; align-items: center; font-size: 0.9rem; font-weight: 600; margin-bottom: 10px; }
+    .form-input { width: 100%; padding: 12px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--fg); font-size: 1rem; }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
-    .btn { width: 100%; padding: 14px; border: none; border-radius: var(--radius-sm); font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; transition: transform 0.1s; }
-    .btn:active { transform: scale(0.98); }
+    .btn { width: 100%; padding: 14px; border: none; border-radius: var(--radius-sm); font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; transition: 0.2s; }
     .btn-primary { background: var(--primary); color: #0a0e1a; }
     .btn-secondary { background: var(--bg-elevated); color: var(--fg); border: 1px solid var(--border); }
 
     .period-selector { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 15px; }
-    .period-btn { padding: 8px 14px; border: 1px solid var(--border); background: var(--bg-elevated); color: var(--fg-muted); border-radius: 8px; cursor: pointer; font-size: 0.8rem; font-weight: 500; }
+    .period-btn { padding: 8px 12px; border: 1px solid var(--border); background: var(--bg-elevated); color: var(--fg-muted); border-radius: 8px; cursor: pointer; font-size: 0.75rem; }
     .period-btn.active { background: var(--primary); color: #0a0e1a; border-color: var(--primary); }
 
-    .chart-container { height: 220px; width: 100%; }
+    .chart-container { height: 220px; width: 100%; margin-top: 10px; }
     .view { display: none; }
     .view.active { display: block; }
-    
     #user-photo { width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--primary); cursor: pointer; }
   </style>
 </head>
 <body>
-  <div id="offline-status">EN LIGNE</div>
+  <div id="offline-status">MODE HORS-LIGNE</div>
 
   <div class="container">
     <div id="login-view">
       <h1 class="greeting">Working Time</h1>
-      <p style="margin: 20px 0; color: var(--fg-muted)">Synchronisez vos heures de travail en toute sécurité</p>
+      <p style="margin: 20px 0; color: var(--fg-muted)">Connectez-vous pour synchroniser vos heures.</p>
       <button id="loginBtn" class="btn btn-primary">Connexion avec Google</button>
     </div>
 
@@ -88,11 +84,11 @@
       <header class="header">
         <div>
           <h1 class="greeting" id="user-greeting">Bonjour !</h1>
-          <p style="color: var(--fg-muted); font-size: 0.85rem;">Prêt pour une session ?</p>
+          <p style="color: var(--fg-muted); font-size: 0.8rem;">Prêt pour aujourd'hui ?</p>
         </div>
-        <div style="display: flex; align-items: center; gap: 15px;">
+        <div style="display: flex; gap: 12px; align-items: center;">
           <div id="themeSwitch" style="cursor: pointer; font-size: 1.2rem;">🌙</div>
-          <img id="user-photo" src="" alt="Profil">
+          <img id="user-photo" src="" alt="Profil" title="Se déconnecter">
         </div>
       </header>
 
@@ -104,51 +100,46 @@
       <div id="view-saisie" class="view active">
         <div class="card">
           <div class="form-group">
-            <label class="form-label"><span class="icon-box">📅</span> Date du jour</label>
+            <label class="form-label"><span class="icon-box">📅</span> Date</label>
             <input type="date" id="workDate" class="form-input">
           </div>
           <div class="form-group">
             <label class="form-label"><span class="icon-box">⏱️</span> Horaires</label>
             <div class="form-row">
-              <input type="time" id="inTime" class="form-input" placeholder="Arrivée">
-              <input type="time" id="outTime" class="form-input" placeholder="Départ">
+              <input type="time" id="inTime" class="form-input">
+              <input type="time" id="outTime" class="form-input">
             </div>
           </div>
           <div class="form-group">
             <label class="form-label"><span class="icon-box">🍽️</span> Pause Déjeuner</label>
             <div class="form-row">
-              <input type="time" id="lunchOut" class="form-input" placeholder="Sortie">
-              <input type="time" id="lunchIn" class="form-input" placeholder="Retour">
+              <input type="time" id="lunchOut" class="form-input">
+              <input type="time" id="lunchIn" class="form-input">
             </div>
           </div>
           <button id="saveBtn" class="btn btn-primary">💾 Enregistrer</button>
-          <button id="clearBtn" class="btn btn-secondary">🗑️ Effacer</button>
+          <button id="clearBtn" class="btn btn-secondary">🗑️ Effacer le jour</button>
           <div id="save-feedback"></div>
         </div>
       </div>
 
       <div id="view-analyse" class="view">
         <div class="card">
-          <div class="period-selector" id="periodSelector">
-            <button class="period-btn" data-period="day">Jour</button>
-            <button class="period-btn active" data-period="week">Semaine</button>
-            <button class="period-btn" data-period="month">Mois</button>
-            <button class="period-btn" data-period="year">Année</button>
-            <button class="period-btn" data-period="all">Tout</button>
-          </div>
-          <div class="form-row" style="margin-bottom: 15px;">
-            <input type="date" id="periodFrom" class="form-input">
-            <input type="date" id="periodTo" class="form-input">
+          <div class="period-selector">
+            <button class="period-btn" data-days="7">Semaine</button>
+            <button class="period-btn active" data-days="30">Mois</button>
+            <button class="period-btn" data-days="365">Année</button>
+            <button class="period-btn" data-days="9999">Tout</button>
           </div>
           
           <div class="stat-label">Statistiques de la période</div>
           <div class="stats-grid">
-            <div class="stat-item"><div class="stat-label">Heures Totales</div><div class="stat-value" id="totalHours">0h</div></div>
+            <div class="stat-item"><div class="stat-label">Total Heures</div><div class="stat-value" id="totalHours">0h</div></div>
             <div class="stat-item"><div class="stat-label">Moy/Jour</div><div class="stat-value" id="avgDay">--</div></div>
             <div class="stat-item"><div class="stat-label">Arrivée Moy.</div><div class="stat-value" id="avgIn">--</div></div>
             <div class="stat-item"><div class="stat-label">Départ Moy.</div><div class="stat-value" id="avgOut">--</div></div>
             <div class="stat-item"><div class="stat-label">Pause Moy.</div><div class="stat-value" id="avgLunch">--</div></div>
-            <div class="stat-item"><div class="stat-label">Jours Travaillés</div><div class="stat-value" id="workedDays">0</div></div>
+            <div class="stat-item"><div class="stat-label">Jours Trav.</div><div class="stat-value" id="workedDays">0</div></div>
           </div>
         </div>
 
@@ -187,23 +178,20 @@
     let planningData = {};
     let currentUser = null;
     let chart = null;
+    let filterDays = 30;
 
     // --- AUTHENTIFICATION ---
-    const loginView = document.getElementById('login-view');
-    const appContent = document.getElementById('app-content');
-
     onAuthStateChanged(auth, (user) => {
       if (user) {
         currentUser = user;
-        loginView.style.display = 'none';
-        appContent.style.display = 'block';
+        document.getElementById('login-view').style.display = 'none';
+        document.getElementById('app-content').style.display = 'block';
         document.getElementById('user-greeting').textContent = `Bonjour ${user.displayName.split(' ')[0]} 👋`;
         document.getElementById('user-photo').src = user.photoURL;
         initDataSync();
       } else {
-        currentUser = null;
-        loginView.style.display = 'flex';
-        appContent.style.display = 'none';
+        document.getElementById('login-view').style.display = 'flex';
+        document.getElementById('app-content').style.display = 'none';
       }
     });
 
@@ -223,20 +211,10 @@
     // --- THEME ---
     const themeSwitch = document.getElementById('themeSwitch');
     themeSwitch.addEventListener('click', () => {
-      const current = document.documentElement.getAttribute('data-theme');
-      const target = current === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', target);
-      themeSwitch.textContent = target === 'dark' ? '🌙' : '☀️';
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+      themeSwitch.textContent = isDark ? '☀️' : '🌙';
     });
-
-    // --- HORS-LIGNE ---
-    window.addEventListener('online', () => setOnlineStatus(true));
-    window.addEventListener('offline', () => setOnlineStatus(false));
-    function setOnlineStatus(isOnline) {
-      const el = document.getElementById('offline-status');
-      el.textContent = isOnline ? "EN LIGNE" : "HORS LIGNE";
-      el.classList.toggle('offline', !isOnline);
-    }
 
     // --- CALCULS ---
     const toMins = (t) => { if(!t) return 0; const [h, m] = t.split(':').map(Number); return h * 60 + m; };
@@ -252,51 +230,46 @@
 
     // --- AFFICHAGE & FILTRES ---
     function updateDisplay() {
-      const from = document.getElementById('periodFrom').value;
-      const to = document.getElementById('periodTo').value;
-      
-      const filteredEntries = Object.entries(planningData).filter(([date]) => {
-        if (from && date < from) return false;
-        if (to && date > to) return false;
-        return true;
-      }).sort((a, b) => a[0].localeCompare(b[0]));
+      const now = new Date();
+      const cutoff = new Date();
+      cutoff.setDate(now.getDate() - filterDays);
 
-      const values = filteredEntries.map(e => e[1]);
+      const filtered = Object.entries(planningData)
+        .filter(([date]) => new Date(date) >= cutoff)
+        .sort((a, b) => a[0].localeCompare(b[0]));
+
+      const values = filtered.map(e => e[1]);
       const totalMins = values.reduce((acc, d) => acc + computeMinutes(d), 0);
       
       document.getElementById('totalHours').textContent = formatH(totalMins);
       document.getElementById('workedDays').textContent = values.length;
       document.getElementById('avgDay').textContent = values.length ? formatH(Math.round(totalMins / values.length)) : '--';
 
-      let sumIn = 0, sumOut = 0, sumLunch = 0, countIn = 0, countOut = 0, countLunch = 0;
+      let sumIn = 0, sumOut = 0, sumLunch = 0, cIn = 0, cOut = 0, cL = 0;
       values.forEach(d => {
-        if(d.in) { sumIn += toMins(d.in); countIn++; }
-        if(d.out) { sumOut += toMins(d.out); countOut++; }
-        if(d.lunchOut && d.lunchIn) { sumLunch += (toMins(d.lunchIn) - toMins(d.lunchOut)); countLunch++; }
+        if(d.in) { sumIn += toMins(d.in); cIn++; }
+        if(d.out) { sumOut += toMins(d.out); cOut++; }
+        if(d.lunchOut && d.lunchIn) { sumLunch += (toMins(d.lunchIn) - toMins(d.lunchOut)); cL++; }
       });
 
-      document.getElementById('avgIn').textContent = countIn ? formatTime(Math.round(sumIn / countIn)) : '--';
-      document.getElementById('avgOut').textContent = countOut ? formatTime(Math.round(sumOut / countOut)) : '--';
-      document.getElementById('avgLunch').textContent = countLunch ? formatH(Math.round(sumLunch / countLunch)) : '--';
+      document.getElementById('avgIn').textContent = cIn ? formatTime(Math.round(sumIn / cIn)) : '--';
+      document.getElementById('avgOut').textContent = cOut ? formatTime(Math.round(sumOut / cOut)) : '--';
+      document.getElementById('avgLunch').textContent = cL ? formatH(Math.round(sumLunch / cL)) : '--';
 
-      updateChart(filteredEntries);
+      updateChart(filtered);
       loadDay();
     }
 
     function updateChart(entries) {
       const ctx = document.getElementById('workChart').getContext('2d');
-      const displayEntries = entries.slice(-10);
-      const labels = displayEntries.map(e => e[0].slice(5));
-      const data = displayEntries.map(e => computeMinutes(e[1]) / 60);
+      const labels = entries.map(e => e[0].slice(5));
+      const data = entries.map(e => computeMinutes(e[1]) / 60);
 
-      if (chart) { 
-        chart.data.labels = labels; 
-        chart.data.datasets[0].data = data; 
-        chart.update(); 
-      } else {
+      if (chart) { chart.data.labels = labels; chart.data.datasets[0].data = data; chart.update(); }
+      else {
         chart = new Chart(ctx, {
           type: 'line',
-          data: { labels, datasets: [{ data, borderColor: '#38bdf8', tension: 0.4, fill: true, backgroundColor: 'rgba(56, 189, 248, 0.1)', borderWidth: 3 }] },
+          data: { labels, datasets: [{ data, borderColor: '#38bdf8', tension: 0.4, fill: true, backgroundColor: 'rgba(56, 189, 248, 0.1)' }] },
           options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
         });
       }
@@ -312,39 +285,26 @@
         lunchOut: document.getElementById('lunchOut').value,
         lunchIn: document.getElementById('lunchIn').value
       };
-      
-      if (!date || !data.in || !data.out) return alert("Remplissez au moins la date et les horaires !");
+      if (!date || !data.in || !data.out) return alert("Date et horaires requis !");
       
       await setDoc(doc(db, "planning", date), data);
       
-      const mins = computeMinutes(data);
       const feedback = document.getElementById('save-feedback');
-      feedback.textContent = `✅ Tu as travaillé ${formatH(mins)} ce jour.`;
+      feedback.textContent = `✅ Tu as travaillé ${formatH(computeMinutes(data))} ce jour.`;
       feedback.style.opacity = "1";
-      setTimeout(() => feedback.style.opacity = "0", 4000);
+      setTimeout(() => feedback.style.opacity = "0", 3000);
     });
 
     document.getElementById('clearBtn').addEventListener('click', async () => {
       const date = document.getElementById('workDate').value;
-      if (date && confirm("Effacer les données de ce jour ?")) await deleteDoc(doc(db, "planning", date));
+      if (date && confirm("Effacer ce jour ?")) await deleteDoc(doc(db, "planning", date));
     });
 
     document.querySelectorAll('.period-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        const p = btn.dataset.period;
-        const now = new Date();
-        let from = new Date();
-        
-        if(p === 'day') from = now;
-        else if(p === 'week') from.setDate(now.getDate() - 7);
-        else if(p === 'month') from.setMonth(now.getMonth() - 1);
-        else if(p === 'year') from.setFullYear(now.getFullYear() - 1);
-        else if(p === 'all') from = new Date(2020, 0, 1);
-
-        document.getElementById('periodFrom').value = from.toISOString().slice(0, 10);
-        document.getElementById('periodTo').value = now.toISOString().slice(0, 10);
+        filterDays = parseInt(btn.dataset.days);
         updateDisplay();
       });
     });
@@ -354,25 +314,22 @@
       const blob = new Blob([JSON.stringify(planningData, null, 2)], { type: 'application/json' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = `working-time-backup.json`;
+      a.download = `backup-working-time.json`;
       a.click();
     });
 
     document.getElementById('importBtn').addEventListener('click', () => document.getElementById('fileInput').click());
     document.getElementById('fileInput').addEventListener('change', (e) => {
-      const file = e.target.files[0];
       const reader = new FileReader();
-      reader.onload = async (event) => {
-        const data = JSON.parse(event.target.result);
-        if(confirm(`Importer ${Object.keys(data).length} jours ?`)) {
-          for (const [date, val] of Object.entries(data)) {
-            val.userId = currentUser.uid;
-            await setDoc(doc(db, "planning", date), val);
-          }
-          alert("Importation terminée !");
+      reader.onload = async (ev) => {
+        const data = JSON.parse(ev.target.result);
+        for (const [date, val] of Object.entries(data)) {
+          val.userId = currentUser.uid;
+          await setDoc(doc(db, "planning", date), val);
         }
+        alert("Importation réussie !");
       };
-      reader.readAsText(file);
+      reader.readAsText(e.target.files[0]);
     });
 
     // Navigation
@@ -396,8 +353,10 @@
 
     document.getElementById('workDate').addEventListener('change', loadDay);
     document.getElementById('workDate').value = new Date().toISOString().slice(0, 10);
-    document.getElementById('periodFrom').value = new Date(Date.now() - 7 * 86400000).toISOString().slice(0,10);
-    document.getElementById('periodTo').value = new Date().toISOString().slice(0, 10);
+
+    // Offline status
+    window.addEventListener('online', () => document.getElementById('offline-status').classList.remove('offline'));
+    window.addEventListener('offline', () => document.getElementById('offline-status').classList.add('offline'));
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
