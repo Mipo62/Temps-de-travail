@@ -3,238 +3,128 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Working Time - Direct</title>
-  <link rel="manifest" href="./manifest.json">
-  <meta name="theme-color" content="#2c3e50">
-  <link rel="apple-touch-icon" href="icon-192.png">
+  <title>Working Time - Hybride</title>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
-    :root {
-      --bg-dark: #0a0e1a; --bg-surface: rgba(15, 23, 42, 0.6); --bg-elevated: rgba(30, 41, 59, 0.8);
-      --fg: #f1f5f9; --fg-muted: #94a3b8; --primary: #38bdf8; --primary-glow: rgba(56, 189, 248, 0.2);
-      --accent-green: #10b981; --border: rgba(148, 163, 184, 0.15); --radius-sm: 12px; --radius-md: 16px; --radius-lg: 20px;
-    }
-
-    [data-theme="light"] {
-      --bg-dark: #f8fafc; --bg-surface: rgba(255, 255, 255, 0.7); --bg-elevated: rgba(255, 255, 255, 0.9);
-      --fg: #0f172a; --fg-muted: #64748b; --border: rgba(148, 163, 184, 0.2);
-    }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, var(--bg-dark) 0%, #1e293b 100%); color: var(--fg); min-height: 100vh; padding: 16px; }
-    .container { max-width: 540px; margin: 0 auto; }
-
-    /* L'application est visible tout de suite */
-    #app-content { display: block; }
-
-    .header { margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; }
-    .greeting { font-size: 1.5rem; font-weight: 700; background: linear-gradient(135deg, var(--primary) 0%, #a78bfa 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .card { background: var(--bg-surface); backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
-    
-    /* Picto bleu Michel */
-    .icon-box { background: var(--primary); color: #0a0e1a; width: 42px; height: 42px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 1.2rem; }
-
-    /* Feedback centré */
-    #save-feedback { text-align: center; color: var(--accent-green); font-weight: 600; margin-top: 15px; min-height: 1.5em; opacity: 0; transition: 0.4s; }
-
-    .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 15px; }
-    .stat-item { background: var(--bg-elevated); padding: 14px; border-radius: var(--radius-md); border: 1px solid var(--border); }
-    .stat-label { font-size: 0.7rem; color: var(--fg-muted); text-transform: uppercase; margin-bottom: 4px; }
-    .stat-value { font-size: 1.1rem; font-weight: 700; color: var(--primary); }
-
-    .tabs { display: flex; gap: 8px; background: var(--bg-surface); padding: 6px; border-radius: var(--radius-md); margin-bottom: 20px; }
-    .tab { flex: 1; padding: 12px; border: none; background: transparent; color: var(--fg-muted); font-weight: 600; cursor: pointer; border-radius: var(--radius-sm); }
-    .tab.active { background: var(--primary); color: #0a0e1a; }
-
-    .form-group { margin-bottom: 18px; }
-    .form-label { display: flex; align-items: center; font-size: 0.9rem; font-weight: 600; margin-bottom: 10px; }
-    .form-input { width: 100%; padding: 12px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--fg); font-size: 1rem; }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
-    .btn { width: 100%; padding: 14px; border: none; border-radius: var(--radius-sm); font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; }
-    .btn-primary { background: var(--primary); color: #0a0e1a; }
-    .btn-secondary { background: var(--bg-elevated); color: var(--fg); border: 1px solid var(--border); }
-
-    .chart-container { height: 220px; width: 100%; margin-top: 10px; }
-    .view { display: none; }
-    .view.active { display: block; }
+    :root { --primary: #38bdf8; --bg: #0a0e1a; --surface: rgba(30, 41, 59, 0.7); --fg: #f1f5f9; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--fg); padding: 16px; text-align: center; }
+    .container { max-width: 500px; margin: 0 auto; }
+    .card { background: var(--surface); border-radius: 16px; padding: 20px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; text-align: left; }
+    #login-view { padding: 50px 0; }
+    #app-content { display: none; }
+    .btn { width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; background: var(--primary); color: #000; margin-top: 10px; }
+    .form-group { margin-bottom: 15px; }
+    input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #444; background: #1e293b; color: #fff; }
+    .icon-box { background: var(--primary); color: #000; width: 35px; height: 35px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; margin-right: 8px; }
   </style>
 </head>
 <body>
   <div class="container">
+    
+    <div id="login-view">
+      <h1 style="color: var(--primary); margin-bottom: 10px;">Working Time</h1>
+      <p style="color: #94a3b8; margin-bottom: 30px;">Authentification via Google API</p>
+      
+      <div id="g_id_onload"
+           data-client_id="172774543780-vps298un7m17e9v0v0v0v0v0v0v0.apps.googleusercontent.com"
+           data-context="signin"
+           data-ux_mode="popup"
+           data-callback="onGoogleLogin"
+           data-auto_prompt="false">
+      </div>
+      <div class="g_id_signin" data-type="standard" data-shape="rectangular" data-theme="outline" data-text="signin_with" data-size="large" data-logo_alignment="left" style="display: flex; justify-content: center;"></div>
+      
+      <div id="status-log" style="margin-top:20px; font-size: 0.8rem; color: #94a3b8;">Attente de connexion...</div>
+    </div>
+
     <div id="app-content">
-      <header class="header">
-        <div>
-          <h1 class="greeting">Working Time</h1>
-          <p style="color: var(--fg-muted); font-size: 0.8rem;">Saisie directe (Sans connexion)</p>
-        </div>
-        <div id="themeSwitch" style="cursor: pointer; font-size: 1.5rem;">🌙</div>
+      <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 id="user-greeting" style="font-size: 1.2rem;">Bonjour</h2>
+        <button onclick="location.reload()" style="background:none; border:none; color: #94a3b8; cursor:pointer; font-size: 0.8rem;">Déconnexion</button>
       </header>
 
-      <div class="tabs">
-        <button class="tab active" data-view="saisie">📝 Saisie</button>
-        <button class="tab" data-view="analyse">📊 Analyse</button>
-      </div>
-
-      <div id="view-saisie" class="view active">
-        <div class="card">
-          <div class="form-group">
-            <label class="form-label"><span class="icon-box">📅</span> Date</label>
-            <input type="date" id="workDate" class="form-input">
-          </div>
-          <div class="form-group">
-            <label class="form-label"><span class="icon-box">⏱️</span> Horaires</label>
-            <div class="form-row">
-              <input type="time" id="inTime" class="form-input">
-              <input type="time" id="outTime" class="form-input">
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label"><span class="icon-box">🍽️</span> Pause Déjeuner</label>
-            <div class="form-row">
-              <input type="time" id="lunchOut" class="form-input">
-              <input type="time" id="lunchIn" class="form-input">
-            </div>
-          </div>
-          <button id="saveBtn" class="btn btn-primary">💾 Enregistrer le jour</button>
-          <button id="clearBtn" class="btn btn-secondary">🗑️ Effacer la saisie</button>
-          <div id="save-feedback"></div>
+      <div class="card">
+        <div class="form-group">
+          <label><span class="icon-box">📅</span> Date</label>
+          <input type="date" id="workDate">
         </div>
-      </div>
-
-      <div id="view-analyse" class="view">
-        <div class="card">
-          <div class="stats-grid">
-            <div class="stat-item"><div class="stat-label">Total</div><div class="stat-value" id="totalHours">0h</div></div>
-            <div class="stat-item"><div class="stat-label">Moy/Jour</div><div class="stat-value" id="avgDay">--</div></div>
-            <div class="stat-item"><div class="stat-label">Arr. Moy.</div><div class="stat-value" id="avgIn">--</div></div>
-            <div class="stat-item"><div class="stat-label">Nb Jours</div><div class="stat-value" id="workedDays">0</div></div>
+        <div class="form-group">
+          <label><span class="icon-box">⏱️</span> Horaires</label>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top:5px;">
+            <input type="time" id="inTime" value="08:00">
+            <input type="time" id="outTime" value="17:00">
           </div>
         </div>
-        <div class="card">
-          <div class="chart-container"><canvas id="workChart"></canvas></div>
-        </div>
+        <button id="saveBtn" class="btn">💾 Enregistrer dans Firebase</button>
       </div>
+      
+      <div id="feedback" style="color: #10b981; font-weight: bold; margin-top: 10px;"></div>
     </div>
+
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getAuth, GoogleAuthProvider, signInWithCredential } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
+    // Ta config Firebase pour le stockage
     const firebaseConfig = {
-      apiKey: "AIzaSyD4anyZUy4jmXG1f6nvuWzphHdtR1mYg2c",
+      apiKey: "AIzaSyD4anyzUy4jmXG1f6nvuWzphHdtR1mYg2c", 
       authDomain: "working-time-33018.firebaseapp.com",
-      projectId: "working-time-33018",
-      storageBucket: "working-time-33018.firebasestorage.app",
-      messagingSenderId: "172774543780",
-      appId: "1:172774543780:web:3827b920e202c4c94bf131"
+      projectId: "working-time-33018"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    let planningData = {};
-    let chart = null;
+    const auth = getAuth(app);
+    let currentUser = null;
 
-    // --- SYNCHRONISATION DIRECTE ---
-    onSnapshot(collection(db, "planning"), (snapshot) => {
-      planningData = {};
-      snapshot.forEach(doc => { planningData[doc.id] = doc.data(); });
-      updateDisplay();
-    });
-
-    const toMins = (t) => { if(!t) return 0; const [h, m] = t.split(':').map(Number); return h * 60 + m; };
-    const formatH = (mins) => `${Math.floor(mins / 60)}h${(mins % 60).toString().padStart(2, '0')}`;
-    const formatTime = (mins) => `${Math.floor(mins / 60).toString().padStart(2, '0')}:${(mins % 60).toString().padStart(2, '0')}`;
-
-    function computeMinutes(day) {
-      if (!day || !day.in || !day.out) return 0;
-      let total = toMins(day.out) - toMins(day.in);
-      if (day.lunchOut && day.lunchIn) total -= (toMins(day.lunchIn) - toMins(day.lunchOut));
-      return Math.max(total, 0);
-    }
-
-    function updateDisplay() {
-      const entries = Object.entries(planningData).sort((a,b) => a[0].localeCompare(b[0]));
-      const totalMins = entries.reduce((acc, [_, d]) => acc + computeMinutes(d), 0);
+    // FONCTION CALLBACK APPELÉE PAR GOOGLE
+    window.onGoogleLogin = async (response) => {
+      document.getElementById('status-log').textContent = "Vérification de l'identité...";
       
-      document.getElementById('totalHours').textContent = formatH(totalMins);
-      document.getElementById('workedDays').textContent = entries.length;
-      document.getElementById('avgDay').textContent = entries.length ? formatH(Math.round(totalMins / entries.length)) : '--';
-
-      let sumIn = 0, countIn = 0;
-      entries.forEach(([_, d]) => { if(d.in) { sumIn += toMins(d.in); countIn++; } });
-      document.getElementById('avgIn').textContent = countIn ? formatTime(Math.round(sumIn / countIn)) : '--';
-
-      updateChart(entries);
-      loadDay();
-    }
-
-    function updateChart(entries) {
-      const ctx = document.getElementById('workChart').getContext('2d');
-      const displayEntries = entries.slice(-10);
-      const labels = displayEntries.map(e => e[0].slice(5));
-      const data = displayEntries.map(e => computeMinutes(e[1]) / 60);
-
-      if (chart) { chart.data.labels = labels; chart.data.datasets[0].data = data; chart.update(); }
-      else {
-        chart = new Chart(ctx, {
-          type: 'line',
-          data: { labels, datasets: [{ data, borderColor: '#38bdf8', tension: 0.4, fill: true, backgroundColor: 'rgba(56, 189, 248, 0.1)' }] },
-          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-        });
+      try {
+        // On transforme le jeton Google en identifiant Firebase
+        const credential = GoogleAuthProvider.credential(response.credential);
+        const result = await signInWithCredential(auth, credential);
+        
+        currentUser = result.user;
+        
+        // On bascule l'affichage
+        document.getElementById('login-view').style.display = 'none';
+        document.getElementById('app-content').style.display = 'block';
+        document.getElementById('user-greeting').textContent = `Salut ${currentUser.displayName.split(' ')[0]} 👋`;
+        
+      } catch (error) {
+        console.error(error);
+        document.getElementById('status-log').innerHTML = `<span style="color:#ef4444">Erreur: ${error.code}</span>`;
       }
-    }
+    };
 
-    document.getElementById('saveBtn').addEventListener('click', async () => {
+    // ACTION ENREGISTRER DANS FIRESTORE
+    document.getElementById('saveBtn').onclick = async () => {
       const date = document.getElementById('workDate').value;
-      const data = {
-        in: document.getElementById('inTime').value,
-        out: document.getElementById('outTime').value,
-        lunchOut: document.getElementById('lunchOut').value,
-        lunchIn: document.getElementById('lunchIn').value
-      };
-      if (!date || !data.in || !data.out) return alert("Date et horaires requis !");
-      await setDoc(doc(db, "planning", date), data);
-      
-      const feedback = document.getElementById('save-feedback');
-      feedback.textContent = `✅ Travail : ${formatH(computeMinutes(data))}`;
-      feedback.style.opacity = "1";
-      setTimeout(() => feedback.style.opacity = "0", 3000);
-    });
+      if(!date || !currentUser) return alert("Date manquante");
 
-    document.getElementById('clearBtn').addEventListener('click', async () => {
-      const date = document.getElementById('workDate').value;
-      if (date && confirm("Effacer ce jour ?")) await deleteDoc(doc(db, "planning", date));
-    });
+      try {
+        await setDoc(doc(db, "planning", date), {
+          userId: currentUser.uid,
+          userName: currentUser.displayName,
+          in: document.getElementById('inTime').value,
+          out: document.getElementById('outTime').value,
+          updatedAt: new Date().toISOString()
+        });
+        
+        const f = document.getElementById('feedback');
+        f.textContent = "✅ Sauvegardé dans Firestore !";
+        setTimeout(() => f.textContent = "", 3000);
+      } catch (e) {
+        alert("Erreur stockage: " + e.message);
+      }
+    };
 
-    document.querySelectorAll('.tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        document.querySelectorAll('.tab, .view').forEach(el => el.classList.remove('active'));
-        tab.classList.add('active');
-        document.getElementById(`view-${tab.dataset.view}`).classList.add('active');
-        if(tab.dataset.view === 'analyse') setTimeout(() => updateDisplay(), 100);
-      });
-    });
-
-    document.getElementById('themeSwitch').addEventListener('click', () => {
-      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-      document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
-      document.getElementById('themeSwitch').textContent = isDark ? '☀️' : '🌙';
-    });
-
-    function loadDay() {
-      const date = document.getElementById('workDate').value;
-      const day = planningData[date] || { in: '', out: '', lunchOut: '', lunchIn: '' };
-      document.getElementById('inTime').value = day.in || '';
-      document.getElementById('outTime').value = day.out || '';
-      document.getElementById('lunchOut').value = day.lunchOut || '';
-      document.getElementById('lunchIn').value = day.lunchIn || '';
-    }
-
-    document.getElementById('workDate').addEventListener('change', loadDay);
     document.getElementById('workDate').value = new Date().toISOString().slice(0, 10);
   </script>
 </body>
