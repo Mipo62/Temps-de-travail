@@ -16,9 +16,9 @@
       --accent-fire: #fb923c; --radius: 16px;
     }
 
-    /* FIX MODE CLAIR */
+    /* Correction Mode Clair */
     [data-theme="light"] {
-      --bg: #f1f5f9; --surface: rgba(255, 255, 255, 0.8); --elevated: #ffffff;
+      --bg: #f1f5f9; --surface: rgba(255, 255, 255, 0.85); --elevated: #ffffff;
       --fg: #0f172a; --fg-muted: #64748b; --border: rgba(0, 0, 0, 0.1);
       --primary: #0284c7;
     }
@@ -27,43 +27,47 @@
     body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--fg); padding: 16px; min-height: 100vh; transition: 0.3s; }
     .container { max-width: 500px; margin: 0 auto; padding-bottom: 80px; }
 
-    /* Header */
+    /* Header & Rangs */
     .header { margin-bottom: 20px; }
     .header-top { display: flex; justify-content: space-between; align-items: center; }
     h1 { font-size: 1.8rem; font-weight: 800; color: var(--primary); letter-spacing: -1px; }
     .rank-badge { background: var(--primary); color: #fff; padding: 4px 10px; border-radius: 8px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-top: 4px; display: inline-block; }
+    .subtitle { color: var(--fg-muted); font-size: 0.85rem; font-style: italic; margin-top: 5px; }
 
-    /* Gamification (Focus Régularité) */
-    .game-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+    /* Gamification Row */
+    .game-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
     .game-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 15px; text-align: center; backdrop-filter: blur(10px); }
     .streak-val { font-size: 1.6rem; font-weight: 800; color: var(--accent-fire); display: block; }
     .game-label { font-size: 0.65rem; color: var(--fg-muted); text-transform: uppercase; font-weight: 700; }
 
-    /* STATISTIQUE MAITRESSE */
+    /* Moyenne Centrale */
     .main-stat-card { background: var(--surface); border: 2px solid var(--primary); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; text-align: center; }
     .main-stat-val { font-size: 2.5rem; font-weight: 800; color: var(--fg); display: block; margin: 5px 0; }
 
-    /* Filtres & Dates */
-    .filter-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 15px; margin-bottom: 20px; }
+    /* Filtres */
+    .filter-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 15px; margin-bottom: 15px; }
     .period-btns { display: flex; gap: 8px; margin-bottom: 12px; }
-    .btn-period { flex: 1; padding: 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--fg-muted); font-weight: 600; cursor: pointer; }
+    .btn-period { flex: 1; padding: 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--fg-muted); font-weight: 600; cursor: pointer; transition: 0.2s; }
     .btn-period.active { background: var(--primary); color: #fff; border-color: var(--primary); }
     .date-range { display: flex; gap: 8px; align-items: center; }
-    .date-range input { flex: 1; background: var(--bg); border: 1px solid var(--border); color: var(--fg); padding: 8px; border-radius: 8px; font-size: 0.8rem; }
+    .date-range input { flex: 1; background: var(--bg); border: 1px solid var(--border); color: var(--fg); padding: 8px; border-radius: 8px; font-size: 0.8rem; outline: none; }
 
-    /* Graph */
+    /* Graphique */
     .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 15px; height: 220px; margin-bottom: 20px; }
 
     /* FAB & Modal */
-    .fab { position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; background: var(--primary); color: #fff; border: none; border-radius: 50%; font-size: 2rem; cursor: pointer; box-shadow: 0 8px 20px rgba(0,0,0,0.3); z-index: 99; }
+    .fab { position: fixed; bottom: 20px; right: 20px; width: 64px; height: 64px; background: var(--primary); color: #fff; border: none; border-radius: 50%; font-size: 2rem; cursor: pointer; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 99; transition: 0.2s; }
+    .fab:active { transform: scale(0.9); }
+    
     .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
     .modal.active { display: flex; }
-    .modal-content { background: var(--elevated); width: 100%; max-width: 400px; border-radius: 24px; padding: 24px; }
+    .modal-content { background: var(--elevated); width: 100%; max-width: 400px; border-radius: 24px; padding: 24px; border: 1px solid var(--border); }
+    .modal-content label { display: block; margin-top: 10px; }
     .modal-content input { width: 100%; padding: 12px; margin-top: 5px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--fg); font-size: 1rem; }
     
     /* Historique */
-    .details-btn { width: 100%; padding: 12px; background: var(--surface); border: 1px solid var(--border); color: var(--fg); border-radius: 12px; cursor: pointer; font-weight: 600; margin-bottom: 10px; }
-    #details-list { display: none; background: var(--surface); border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
+    .details-btn { width: 100%; padding: 12px; background: var(--surface); border: 1px solid var(--border); color: var(--fg); border-radius: 12px; cursor: pointer; font-weight: 600; margin-bottom: 10px; display: flex; justify-content: space-between; }
+    #details-list { display: none; background: var(--surface); border-radius: 12px; overflow: hidden; margin-bottom: 20px; border: 1px solid var(--border); }
     #details-list.active { display: block; }
     .detail-row { display: grid; grid-template-columns: 1fr 1fr 1fr; padding: 12px; border-bottom: 1px solid var(--border); font-size: 0.8rem; }
   </style>
@@ -79,7 +83,7 @@
       </div>
       <div id="themeToggle" style="cursor: pointer; font-size: 1.4rem;">🌙</div>
     </div>
-    <p style="color: var(--fg-muted); font-size: 0.85rem; font-style: italic;">Mesurer le temps pour mieux le gérer</p>
+    <p class="subtitle">Mesurer le temps pour mieux le gérer</p>
   </header>
 
   <div class="game-row">
@@ -88,15 +92,15 @@
       <span class="streak-val" id="streak-count">0 🔥</span>
     </div>
     <div class="game-card">
-      <span class="game-label">Saisie Totale</span>
+      <span class="game-label">Saisies</span>
       <span class="streak-val" id="total-entries">0 📖</span>
     </div>
   </div>
 
   <div class="main-stat-card">
-    <span class="game-label">Moyenne travaillée / jour</span>
+    <span class="game-label">Moyenne quotidienne travaillée</span>
     <span class="main-stat-val" id="stat-avg-work">0h00</span>
-    <span id="stat-total-period" style="font-size: 0.8rem; color: var(--fg-muted);">Total période : 0h</span>
+    <span id="stat-total-period" style="font-size: 0.8rem; color: var(--fg-muted);">Sur la période sélectionnée</span>
   </div>
 
   <div class="filter-box">
@@ -113,7 +117,9 @@
 
   <div class="chart-card"><canvas id="mainChart"></canvas></div>
 
-  <button class="details-btn" onclick="document.getElementById('details-list').classList.toggle('active')">Voir les détails de la période ▼</button>
+  <button class="details-btn" onclick="document.getElementById('details-list').classList.toggle('active')">
+    Historique détaillé de la période <span>▼</span>
+  </button>
   <div id="details-list"></div>
 </div>
 
@@ -121,22 +127,26 @@
 
 <div class="modal" id="modal">
   <div class="modal-content">
-    <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
-      <h3>Saisie du jour</h3>
-      <button onclick="toggleModal(false)" style="background:none; border:none; color:var(--fg-muted); font-size:1.5rem; cursor:pointer;">&times;</button>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+      <h3 style="font-weight: 800;">Saisie du jour</h3>
+      <button onclick="toggleModal(false)" style="background:none; border:none; color:var(--fg-muted); font-size:1.8rem; cursor:pointer;">&times;</button>
     </div>
-    <div style="margin-bottom:10px;"><label class="game-label">Date</label><input type="date" id="in-date" onchange="loadData(this.value)"></div>
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+    <label class="game-label">Date</label>
+    <input type="date" id="in-date" onchange="loadExistingData(this.value)">
+    
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
       <div><label class="game-label">Arrivée</label><input type="time" id="in-time"></div>
       <div><label class="game-label">Départ</label><input type="time" id="out-time"></div>
     </div>
+    
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;">
-      <div><label class="game-label">Début Déj</label><input type="time" id="in-l-out"></div>
-      <div><label class="game-label">Fin Déj</label><input type="time" id="in-l-in"></div>
+      <div><label class="game-label">Pause (Début)</label><input type="time" id="l-out"></div>
+      <div><label class="game-label">Pause (Fin)</label><input type="time" id="l-in"></div>
     </div>
+
     <div style="display:flex; gap:10px;">
-      <button onclick="handleDelete()" style="background:#ef4444; color:white; border:none; border-radius:10px; padding:12px; cursor:pointer;">🗑️</button>
-      <button onclick="handleSave()" style="flex:1; background:var(--primary); color:white; border:none; border-radius:10px; font-weight:800; cursor:pointer;">ENREGISTRER</button>
+      <button onclick="handleDelete()" style="background:#ef4444; color:white; border:none; border-radius:12px; padding:14px; cursor:pointer; flex: 1;">🗑️</button>
+      <button onclick="handleSave()" style="flex:3; background:var(--primary); color:white; border:none; border-radius:12px; font-weight:800; cursor:pointer;">ENREGISTRER</button>
     </div>
   </div>
 </div>
@@ -148,47 +158,57 @@
   let planningData = {};
   let chart;
 
-  // Sync Firestore
+  // Sync Temps Réel
   onSnapshot(collection(db, "planning"), (snapshot) => {
     planningData = {};
     snapshot.forEach(doc => { planningData[doc.id] = doc.data(); });
-    calculateRegularity();
+    calculateGamification();
     manualFilter();
   });
 
   const toMins = (t) => { if(!t) return 0; const [h, m] = t.split(':').map(Number); return h * 60 + m; };
   const fromMins = (m) => `${Math.floor(m / 60)}h${(m % 60).toString().padStart(2, '0')}`;
 
-  // GAMIFICATION : FOCUS SUR LA RÉGULARITÉ
-  function calculateRegularity() {
+  // GAMIFICATION (Ignorer week-ends pour la série)
+  function calculateGamification() {
     const dates = Object.keys(planningData).sort().reverse();
-    
-    // Streak (jours consécutifs de saisie)
     let streak = 0;
-    let check = new Date();
-    while(planningData[check.toISOString().split('T')[0]]) {
-      streak++;
-      check.setDate(check.getDate() - 1);
+    let checkDate = new Date();
+
+    while(true) {
+      let dayStr = checkDate.toISOString().split('T')[0];
+      let dayOfWeek = checkDate.getDay(); // 0=Dimanche, 6=Samedi
+
+      if (planningData[dayStr]) {
+        streak++;
+      } else if (dayOfWeek === 0 || dayOfWeek === 6) {
+        // C'est le week-end vide, on continue sans briser la série
+      } else {
+        // Jour de semaine vide : série brisée (sauf si c'est aujourd'hui)
+        if (dayStr !== new Date().toISOString().split('T')[0]) break;
+      }
+      checkDate.setDate(checkDate.getDate() - 1);
+      if (streak > 5000) break; 
     }
+
     document.getElementById('streak-count').innerText = `${streak} 🔥`;
     document.getElementById('total-entries').innerText = `${dates.length} 📖`;
 
-    // Rangs basés sur la sagesse (nombre de saisies)
     let rank = "Apprenti de l'Équilibre";
-    if(dates.length > 10) rank = "Organisateur Serein";
-    if(dates.length > 30) rank = "Maître du Temps";
-    if(dates.length > 100) rank = "Sage de la Mesure";
+    if(dates.length > 15) rank = "Organisateur Serein";
+    if(dates.length > 50) rank = "Maître du Temps";
+    if(dates.length > 150) rank = "Sage de la Mesure";
     document.getElementById('user-rank').innerText = rank;
   }
 
+  // FILTRAGE
   window.manualFilter = () => {
     const start = document.getElementById('filter-start').value;
     const end = document.getElementById('filter-end').value;
     const filtered = Object.entries(planningData)
       .filter(([date]) => date >= start && date <= end)
       .sort((a,b) => a[0].localeCompare(b[0]));
-    
-    updateDisplay(filtered);
+    updateView(filtered);
   };
 
   window.setPeriod = (type) => {
@@ -203,67 +223,62 @@
     manualFilter();
   };
 
-  function updateDisplay(entries) {
-    if(!entries.length) {
-      document.getElementById('stat-avg-work').innerText = "0h00";
-      return;
-    }
-
+  function updateView(entries) {
     let totalMins = 0;
-    entries.forEach(([_, d]) => {
-      let daily = toMins(d.out) - toMins(d.in);
-      if(d.lunchOut && d.lunchIn) daily -= (toMins(d.lunchIn) - toMins(d.lunchOut));
-      totalMins += Math.max(daily, 0);
+    const historyList = document.getElementById('details-list');
+    
+    const chartData = entries.map(([date, d]) => {
+      let w = toMins(d.out) - toMins(d.in);
+      if(d.lunchOut && d.lunchIn) w -= (toMins(d.lunchIn) - toMins(d.lunchOut));
+      let finalW = Math.max(w, 0);
+      totalMins += finalW;
+      return (finalW / 60).toFixed(2);
     });
 
-    document.getElementById('stat-avg-work').innerText = fromMins(Math.round(totalMins / entries.length));
-    document.getElementById('stat-total-period').innerText = `Total période : ${fromMins(totalMins)}`;
+    // Stats
+    document.getElementById('stat-avg-work').innerText = entries.length ? fromMins(Math.round(totalMins / entries.length)) : "0h00";
+    document.getElementById('stat-total-period').innerText = `Total : ${fromMins(totalMins)} sur la période`;
 
-    // Update Chart
+    // Chart
     const ctx = document.getElementById('mainChart').getContext('2d');
     if (chart) chart.destroy();
     chart = new Chart(ctx, {
       type: 'line',
       data: {
         labels: entries.map(e => e[0].split('-').reverse().slice(0,2).join('/')),
-        datasets: [{ data: entries.map(e => {
-          let d = e[1];
-          let w = toMins(d.out) - toMins(d.in);
-          if(d.lunchOut && d.lunchIn) w -= (toMins(d.lunchIn) - toMins(d.lunchOut));
-          return (w/60).toFixed(2);
-        }), borderColor: '#38bdf8', tension: 0.4, fill: true, backgroundColor: 'rgba(56,189,248,0.1)' }]
+        datasets: [{ data: chartData, borderColor: '#38bdf8', tension: 0.4, fill: true, backgroundColor: 'rgba(56,189,248,0.1)' }]
       },
       options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
     });
 
-    // Update History
-    document.getElementById('details-list').innerHTML = entries.reverse().map(([date, d]) => {
+    // History
+    historyList.innerHTML = [...entries].reverse().map(([date, d]) => {
       let w = toMins(d.out) - toMins(d.in);
       if(d.lunchOut && d.lunchIn) w -= (toMins(d.lunchIn) - toMins(d.lunchOut));
       return `<div class="detail-row">
         <div>${date.split('-').reverse().join('/')}</div>
-        <div style="color:var(--fg-muted)">${d.in}-${d.out}</div>
-        <div style="font-weight:bold">${fromMins(w)}</div>
+        <div style="color:var(--fg-muted)">${d.in || '--'} > ${d.out || '--'}</div>
+        <div style="font-weight:bold">${fromMins(Math.max(w,0))}</div>
       </div>`;
     }).join('');
   }
 
-  // UI ACTIONS
+  // MODAL ACTIONS
   window.toggleModal = (s) => {
     document.getElementById('modal').classList.toggle('active', s);
     if(s) {
-      const d = new Date().toISOString().split('T')[0];
-      document.getElementById('in-date').value = d;
-      loadData(d);
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('in-date').value = today;
+      loadExistingData(today);
     }
   };
 
-  window.loadData = (date) => {
+  window.loadExistingData = (date) => {
     const d = planningData[date] || { in:'', out:'', lunchOut:'', lunchIn:'' };
     document.getElementById('in-time').value = d.in || '';
     document.getElementById('out-time').value = d.out || '';
-    document.getElementById('in-l-out').value = d.lunchOut || '';
-    document.getElementById('in-l-in').value = d.lunchIn || '';
+    document.getElementById('l-out').value = d.lunchOut || '';
+    document.getElementById('l-in').value = d.lunchIn || '';
   };
 
   window.handleSave = async () => {
@@ -271,27 +286,30 @@
     const data = {
       in: document.getElementById('in-time').value,
       out: document.getElementById('out-time').value,
-      lunchOut: document.getElementById('in-l-out').value,
-      lunchIn: document.getElementById('in-l-in').value
+      lunchOut: document.getElementById('l-out').value,
+      lunchIn: document.getElementById('l-in').value
     };
     await setDoc(doc(db, "planning", date), data);
-    confetti({ particleCount: 80, spread: 50, origin: { y: 0.8 } });
+    confetti({ particleCount: 100, spread: 70, origin: { y: 0.8 } });
     toggleModal(false);
   };
 
   window.handleDelete = async () => {
     const date = document.getElementById('in-date').value;
-    if(confirm("Supprimer ?")) { await deleteDoc(doc(db, "planning", date)); toggleModal(false); }
+    if(confirm("Supprimer cette journée ?")) {
+      await deleteDoc(doc(db, "planning", date));
+      toggleModal(false);
+    }
   };
 
-  // Theme Toggle
+  // Theme Switch
   document.getElementById('themeToggle').onclick = () => {
-    const current = document.documentElement.getAttribute('data-theme');
-    const target = current === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', target);
-    document.getElementById('themeToggle').innerText = target === 'dark' ? '🌙' : '☀️';
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', theme);
+    document.getElementById('themeToggle').innerText = theme === 'dark' ? '🌙' : '☀️';
   };
 
+  // Init
   setPeriod('month');
 </script>
 </body>
