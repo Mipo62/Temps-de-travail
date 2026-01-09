@@ -3,298 +3,278 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Working Time</title>
+  <title>WorkTime Pro</title>
   <link rel="manifest" href="./manifest.json">
-  <meta name="theme-color" content="#2c3e50">
-  <link rel="apple-touch-icon" href="icon-19.png">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
     :root {
-      --bg-dark: #0a0e1a;
-      --bg-surface: rgba(15, 23, 42, 0.6);
-      --bg-elevated: rgba(30, 41, 59, 0.8);
-      --fg: #f1f5f9;
-      --fg-muted: #94a3b8;
-      --primary: #38bdf8;
-      --primary-glow: rgba(56, 189, 248, 0.2);
-      --accent-green: #10b981;
-      --accent-orange: #fb923c;
-      --accent-purple: #a78bfa;
-      --border: rgba(148, 163, 184, 0.15);
-      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
-      --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.15);
-      --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.2);
-      --radius-sm: 12px;
-      --radius-md: 16px;
-      --radius-lg: 20px;
+      --bg: #0a0e1a; --surface: rgba(15, 23, 42, 0.7); --elevated: rgba(30, 41, 59, 0.9);
+      --fg: #f1f5f9; --fg-muted: #94a3b8; --primary: #38bdf8; --border: rgba(148, 163, 184, 0.15);
+      --radius: 16px;
     }
-
     [data-theme="light"] {
-      --bg-dark: #f8fafc;
-      --bg-surface: rgba(255, 255, 255, 0.7);
-      --bg-elevated: rgba(255, 255, 255, 0.9);
-      --fg: #0f172a;
-      --fg-muted: #64748b;
-      --border: rgba(148, 163, 184, 0.2);
+      --bg: #f8fafc; --surface: rgba(255, 255, 255, 0.8); --elevated: #ffffff;
+      --fg: #0f172a; --fg-muted: #64748b; --border: rgba(0,0,0,0.1);
     }
-
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--fg); padding: 16px; min-height: 100vh; transition: 0.3s; }
+    .container { max-width: 500px; margin: 0 auto; padding-bottom: 80px; }
 
-    body {
-      font-family: 'Inter', sans-serif;
-      background: linear-gradient(135deg, var(--bg-dark) 0%, #1e293b 100%);
-      color: var(--fg);
-      min-height: 100vh;
-      padding: 16px;
-    }
+    /* Header */
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .header h1 { font-size: 1.5rem; font-weight: 800; color: var(--primary); }
 
-    .container { max-width: 540px; margin: 0 auto; }
+    /* Vue d'ensemble */
+    .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 15px; backdrop-filter: blur(10px); }
+    .stat-label { font-size: 0.7rem; color: var(--fg-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
+    .stat-value { font-size: 1.2rem; font-weight: 700; color: var(--fg); }
 
-    /* Header & Themes */
-    .header { margin-bottom: 24px; }
-    .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-    .greeting { font-size: 1.75rem; font-weight: 700; background: linear-gradient(135deg, var(--primary) 0%, var(--accent-purple) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .theme-switch { background: var(--bg-surface); backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: 999px; padding: 6px; display: flex; gap: 4px; cursor: pointer; }
-    .theme-option { padding: 8px 14px; border-radius: 999px; font-size: 0.875rem; color: var(--fg-muted); }
-    .theme-option.active { background: var(--primary); color: #0a0e1a; }
+    /* Filtres */
+    .filter-section { margin-bottom: 20px; }
+    .period-btns { display: flex; gap: 8px; margin-bottom: 12px; }
+    .btn-period { flex: 1; padding: 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--fg-muted); font-weight: 600; cursor: pointer; }
+    .btn-period.active { background: var(--primary); color: #000; border-color: var(--primary); }
+    .range-inputs { display: flex; gap: 10px; align-items: center; background: var(--surface); padding: 10px; border-radius: 12px; }
+    .range-inputs input { background: transparent; border: none; color: var(--fg); font-size: 0.85rem; width: 100%; outline: none; }
 
-    /* Cards & Stats */
-    .stats-card { background: var(--bg-surface); backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 20px; }
-    .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 16px; }
-    .stat-item { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px; }
-    .stat-label { font-size: 0.8125rem; color: var(--fg-muted); margin-bottom: 8px; text-transform: uppercase; }
-    .stat-value { font-size: 1.5rem; font-weight: 700; color: var(--primary); }
+    /* Graphique */
+    .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 15px; height: 220px; margin-bottom: 20px; }
 
-    /* Tabs */
-    .tabs { display: flex; gap: 10px; margin-bottom: 20px; background: var(--bg-surface); padding: 6px; border-radius: var(--radius-md); }
-    .tab { flex: 1; padding: 12px; border: none; background: transparent; color: var(--fg-muted); font-weight: 600; cursor: pointer; border-radius: var(--radius-sm); }
-    .tab.active { background: var(--primary); color: #fff; }
+    /* Bouton Flottant Saisie */
+    .fab { position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; background: var(--primary); color: #000; border: none; border-radius: 50%; font-size: 2rem; cursor: pointer; box-shadow: 0 10px 25px rgba(56, 189, 248, 0.4); display: flex; align-items: center; justify-content: center; z-index: 99; }
 
-    /* Form */
-    .card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 20px; }
-    .form-group { margin-bottom: 20px; }
-    .form-label { display: block; font-size: 0.875rem; margin-bottom: 8px; }
-    .form-input { width: 100%; padding: 14px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--fg); font-family: inherit; }
-    .form-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-
-    /* Buttons */
-    .btn-group { display: flex; gap: 12px; margin-top: 24px; }
-    .btn { flex: 1; padding: 14px; border: none; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
-    .btn-primary { background: var(--primary); color: #0a0e1a; }
-    .btn-secondary { background: var(--bg-elevated); color: var(--fg); border: 1px solid var(--border); }
-
-    .chart-container { height: 220px; margin: 20px 0; }
-    .view { display: none; }
-    .view.active { display: block; }
+    /* Fieldset Flottant (Modal) */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+    .modal-overlay.active { display: flex; }
+    .floating-fieldset { background: var(--elevated); width: 100%; max-width: 400px; border-radius: 24px; padding: 24px; border: 1px solid var(--border); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; font-size: 0.8rem; color: var(--fg-muted); margin-bottom: 6px; }
+    .form-input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--fg); font-size: 1rem; }
+    .modal-btns { display: flex; gap: 10px; margin-top: 20px; }
+    .btn-save { flex: 2; background: var(--primary); color: #000; padding: 14px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; }
+    .btn-delete { flex: 1; background: #ef4444; color: #fff; padding: 14px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; }
   </style>
 </head>
-
 <body>
-  <div class="container">
-    <header class="header">
-      <div class="header-top">
-        <h1 class="greeting">Working Time 👋</h1>
-        <div class="theme-switch" id="themeSwitch">
-          <div class="theme-option" data-theme="dark">🌙</div>
-          <div class="theme-option" data-theme="light">☀️</div>
-        </div>
-      </div>
-      <p style="color: var(--fg-muted)">Gestionnaire synchronisé</p>
-    </header>
 
-    <div class="stats-card">
-      <div class="stat-label">Vue d'ensemble</div>
-      <div class="stats-grid">
-        <div class="stat-item">
-          <div class="stat-label">Moyenne/jour</div>
-          <div class="stat-value" id="avgDay">--</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-label">Total période</div>
-          <div class="stat-value" id="totalHours">0h</div>
-          <div id="workedDays" style="font-size: 0.75rem; color: var(--fg-muted)">0 jour</div>
-        </div>
-      </div>
+<div class="container">
+  <header class="header">
+    <h1>WorkTime</h1>
+    <div id="themeToggle" style="cursor: pointer; font-size: 1.2rem;">🌙</div>
+  </header>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <p class="stat-label">Moy. Travail</p>
+      <div class="stat-value" id="stat-avg-work">--</div>
     </div>
-
-    <div class="tabs">
-      <button class="tab active" data-view="saisie">📝 Saisie</button>
-      <button class="tab" data-view="analyse">📊 Analyse</button>
+    <div class="stat-card">
+      <p class="stat-label">Nb Jours</p>
+      <div class="stat-value" id="stat-count">0</div>
     </div>
-
-    <div id="view-saisie" class="view active">
-      <div class="card">
-        <div class="form-group">
-          <label class="form-label">📅 Date</label>
-          <input type="date" id="workDate" class="form-input">
-        </div>
-        <div class="form-group">
-          <label class="form-label">⏱️ Arrivée / Départ</label>
-          <div class="form-row">
-            <input type="time" id="inTime" class="form-input">
-            <input type="time" id="outTime" class="form-input">
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">🍽️ Pause Déjeuner (Sortie / Retour)</label>
-          <div class="form-row">
-            <input type="time" id="lunchOut" class="form-input">
-            <input type="time" id="lunchIn" class="form-input">
-          </div>
-        </div>
-        <div class="btn-group">
-          <button id="saveBtn" class="btn btn-primary">💾 Enregistrer</button>
-          <button id="clearBtn" class="btn btn-secondary">🗑️ Effacer</button>
-        </div>
-      </div>
+    <div class="stat-card">
+      <p class="stat-label">Arrivée Moy.</p>
+      <div class="stat-value" id="stat-avg-in">--</div>
     </div>
-
-    <div id="view-analyse" class="view">
-      <div class="card">
-        <h2 class="form-label">Évolution des heures</h2>
-        <div class="chart-container">
-          <canvas id="workChart"></canvas>
-        </div>
-      </div>
-      <div class="btn-group">
-        <button id="historyBtn" class="btn btn-secondary">📋 Historique</button>
-        <button id="exportBtn" class="btn btn-secondary">📤 Exporter</button>
-      </div>
+    <div class="stat-card">
+      <p class="stat-label">Départ Moy.</p>
+      <div class="stat-value" id="stat-avg-out">--</div>
+    </div>
+    <div class="stat-card" style="grid-column: span 2;">
+      <p class="stat-label">Pause Déj Moyenne</p>
+      <div class="stat-value" id="stat-avg-lunch">--</div>
     </div>
   </div>
 
-  <script type="module">
-    import { db } from './firebase-config.js';
-    import { collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  <div class="filter-section">
+    <div class="period-btns">
+      <button class="btn-period" onclick="setPeriod('week')">Semaine</button>
+      <button class="btn-period active" onclick="setPeriod('month')">Mois</button>
+    </div>
+    <div class="range-inputs">
+      <input type="date" id="filter-start" onchange="manualFilter()">
+      <span style="color: var(--fg-muted)">→</span>
+      <input type="date" id="filter-end" onchange="manualFilter()">
+    </div>
+  </div>
 
-    let planningData = {};
-    let chart;
+  <div class="chart-card">
+    <canvas id="mainChart"></canvas>
+  </div>
+</div>
 
-    // --- SYNCHRONISATION TEMPS RÉEL ---
-    const planningRef = collection(db, "planning");
-    onSnapshot(planningRef, (snapshot) => {
-      planningData = {};
-      snapshot.forEach(doc => { planningData[doc.id] = doc.data(); });
-      updateStats();
-      updateChart();
-      loadDay();
-    });
+<button class="fab" onclick="toggleModal(true)">+</button>
 
-    // --- THEME ---
-    const themeOptions = document.querySelectorAll('.theme-option');
-    const setTheme = (theme) => {
-      document.body.setAttribute('data-theme', theme);
-      localStorage.setItem("planning.theme", theme);
-      themeOptions.forEach(opt => opt.classList.toggle('active', opt.dataset.theme === theme));
-    };
-    themeOptions.forEach(opt => opt.addEventListener('click', () => setTheme(opt.dataset.theme)));
-    setTheme(localStorage.getItem("planning.theme") || 'dark');
+<div class="modal-overlay" id="modal">
+  <div class="floating-fieldset">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <h3 style="font-weight: 700;">Nouvelle Saisie</h3>
+      <button onclick="toggleModal(false)" style="background:none; border:none; color:var(--fg-muted); font-size:1.5rem; cursor:pointer;">&times;</button>
+    </div>
+    
+    <div class="form-group">
+      <label>Date</label>
+      <input type="date" id="input-date" class="form-input" onchange="loadExistingData(this.value)">
+    </div>
+    <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+      <div><label>Arrivée</label><input type="time" id="input-in" class="form-input"></div>
+      <div><label>Départ</label><input type="time" id="input-out" class="form-input"></div>
+    </div>
+    <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+      <div><label>Sortie Déj</label><input type="time" id="input-lout" class="form-input"></div>
+      <div><label>Retour Déj</label><input type="time" id="input-lin" class="form-input"></div>
+    </div>
 
-    // --- NAVIGATION ---
-    document.querySelectorAll('.tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        document.querySelectorAll('.tab, .view').forEach(el => el.classList.remove('active'));
-        tab.classList.add('active');
-        document.getElementById(`view-${tab.dataset.view}`).classList.add('active');
-      });
-    });
+    <div class="modal-btns">
+      <button class="btn-delete" id="btn-del" onclick="handleDelete()">🗑️</button>
+      <button class="btn-save" onclick="handleSave()">💾 Enregistrer</button>
+    </div>
+  </div>
+</div>
 
-    // --- CALCULS ---
-    function computeMinutes(day) {
-      if (!day || !day.in || !day.out) return 0;
-      const toMins = (t) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
-      let total = toMins(day.out) - toMins(day.in);
-      if (day.lunchOut && day.lunchIn) total -= (toMins(day.lunchIn) - toMins(day.lunchOut));
-      return Math.max(total, 0);
+<script type="module">
+  import { db } from './firebase-config.js';
+  import { collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  let planningData = {};
+  let chart;
+
+  // Initialisation Firestore
+  onSnapshot(collection(db, "planning"), (snapshot) => {
+    planningData = {};
+    snapshot.forEach(doc => { planningData[doc.id] = doc.data(); });
+    manualFilter(); // Met à jour l'affichage selon le filtre actuel
+  });
+
+  // --- LOGIQUE FILTRAGE ---
+  function manualFilter() {
+    const start = document.getElementById('filter-start').value;
+    const end = document.getElementById('filter-end').value;
+    if(!start || !end) return;
+
+    const filtered = Object.entries(planningData)
+      .filter(([date]) => date >= start && date <= end)
+      .sort((a,b) => a[0].localeCompare(b[0]));
+
+    updateStats(filtered);
+    updateChart(filtered);
+  }
+  window.manualFilter = manualFilter;
+
+  function setPeriod(type) {
+    const today = new Date();
+    let start = new Date();
+    if (type === 'week') start.setDate(today.getDate() - 7);
+    if (type === 'month') start.setMonth(today.getMonth() - 1);
+    
+    document.getElementById('filter-start').value = start.toISOString().split('T')[0];
+    document.getElementById('filter-end').value = today.toISOString().split('T')[0];
+    
+    document.querySelectorAll('.btn-period').forEach(b => b.classList.toggle('active', b.innerText.toLowerCase().includes(type)));
+    manualFilter();
+  }
+  window.setPeriod = setPeriod;
+
+  // --- CALCULS STATS ---
+  const toMins = (t) => { if(!t) return null; const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+  const fromMins = (m) => `${Math.floor(m / 60)}h${(m % 60).toString().padStart(2, '0')}`;
+  const fromMinsToTime = (m) => `${Math.floor(m / 60).toString().padStart(2, '0')}:${(m % 60).toString().padStart(2, '0')}`;
+
+  function updateStats(entries) {
+    if(!entries.length) {
+      document.querySelectorAll('.stat-value').forEach(el => el.innerText = '--');
+      document.getElementById('stat-count').innerText = '0';
+      return;
     }
 
-    function formatHours(mins) {
-      return `${Math.floor(mins / 60)}h${(mins % 60).toString().padStart(2, '0')}`;
-    }
+    let totalWork = 0, sumIn = 0, sumOut = 0, sumLunch = 0;
+    let countIn = 0, countOut = 0, countL = 0;
 
-    function updateStats() {
-      const entries = Object.values(planningData);
-      if (!entries.length) return;
-      const totalMins = entries.reduce((acc, day) => acc + computeMinutes(day), 0);
-      document.getElementById('totalHours').textContent = formatHours(totalMins);
-      document.getElementById('workedDays').textContent = `${entries.length} jour(s)`;
-      document.getElementById('avgDay').textContent = formatHours(Math.round(totalMins / entries.length));
-    }
-
-    function loadDay() {
-      const date = document.getElementById('workDate').value;
-      const day = planningData[date] || { in: '', out: '', lunchOut: '', lunchIn: '' };
-      document.getElementById('inTime').value = day.in;
-      document.getElementById('outTime').value = day.out;
-      document.getElementById('lunchOut').value = day.lunchOut;
-      document.getElementById('lunchIn').value = day.lunchIn;
-    }
-
-    // --- ACTIONS ---
-    document.getElementById('saveBtn').addEventListener('click', async () => {
-      const date = document.getElementById('workDate').value;
-      const data = {
-        in: document.getElementById('inTime').value,
-        out: document.getElementById('outTime').value,
-        lunchOut: document.getElementById('lunchOut').value,
-        lunchIn: document.getElementById('lunchIn').value
-      };
-      if (!date || !data.in || !data.out) return alert("Remplissez la date et les horaires !");
-      
-      const btn = document.getElementById('saveBtn');
-      btn.textContent = "⏳...";
-      await setDoc(doc(db, "planning", date), data);
-      btn.textContent = "💾 Enregistrer";
-    });
-
-    document.getElementById('clearBtn').addEventListener('click', async () => {
-      const date = document.getElementById('workDate').value;
-      if (date && confirm("Supprimer ce jour ?")) await deleteDoc(doc(db, "planning", date));
-    });
-
-    document.getElementById('workDate').addEventListener('change', loadDay);
-    document.getElementById('workDate').value = new Date().toISOString().slice(0, 10);
-
-    // --- CHART ---
-    function updateChart() {
-      const ctx = document.getElementById('workChart').getContext('2d');
-      const sorted = Object.entries(planningData).sort((a, b) => a[0].localeCompare(b[0])).slice(-7);
-      const labels = sorted.map(s => s[0].slice(5));
-      const data = sorted.map(s => computeMinutes(s[1]) / 60);
-
-      if (chart) { chart.data.labels = labels; chart.data.datasets[0].data = data; chart.update(); }
-      else {
-        chart = new Chart(ctx, {
-          type: 'line',
-          data: { labels, datasets: [{ label: 'Heures', data, borderColor: '#38bdf8', tension: 0.4, fill: true, backgroundColor: 'rgba(56, 189, 248, 0.1)' }] },
-          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-        });
+    entries.forEach(([_, d]) => {
+      const minsIn = toMins(d.in), minsOut = toMins(d.out), lOut = toMins(d.lunchOut), lIn = toMins(d.lunchIn);
+      if(minsIn && minsOut) {
+        let work = minsOut - minsIn;
+        if(lOut && lIn) { work -= (lIn - lOut); sumLunch += (lIn - lOut); countL++; }
+        totalWork += work;
+        sumIn += minsIn; countIn++;
+        sumOut += minsOut; countOut++;
       }
-    }
-
-    // --- HISTORIQUE & EXPORT ---
-    document.getElementById('historyBtn').addEventListener('click', () => {
-      const lines = Object.entries(planningData).sort().map(([d, data]) => `${d}: ${formatHours(computeMinutes(data))}`);
-      alert(lines.join('\n') || "Aucune donnée");
     });
 
-    document.getElementById('exportBtn').addEventListener('click', () => {
-      const blob = new Blob([JSON.stringify(planningData, null, 2)], { type: 'application/json' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = `working-time-export.json`;
-      a.click();
+    document.getElementById('stat-avg-work').innerText = fromMins(Math.round(totalWork / entries.length));
+    document.getElementById('stat-count').innerText = entries.length;
+    document.getElementById('stat-avg-in').innerText = countIn ? fromMinsToTime(Math.round(sumIn / countIn)) : '--';
+    document.getElementById('stat-avg-out').innerText = countOut ? fromMinsToTime(Math.round(sumOut / countOut)) : '--';
+    document.getElementById('stat-avg-lunch').innerText = countL ? fromMins(Math.round(sumLunch / countL)) : '--';
+  }
+
+  // --- GRAPH ---
+  function updateChart(entries) {
+    const ctx = document.getElementById('mainChart').getContext('2d');
+    const labels = entries.map(e => e[0].slice(5));
+    const data = entries.map(([_, d]) => {
+      let work = toMins(d.out) - toMins(d.in);
+      if(d.lunchOut && d.lunchIn) work -= (toMins(d.lunchIn) - toMins(d.lunchOut));
+      return (work / 60).toFixed(2);
     });
 
-    // PWA Service Worker
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').then(() => console.log('PWA active'));
-      });
+    if (chart) chart.destroy();
+    chart = new Chart(ctx, {
+      type: 'line',
+      data: { labels, datasets: [{ data, borderColor: '#38bdf8', tension: 0.4, fill: true, backgroundColor: 'rgba(56,189,248,0.1)' }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+    });
+  }
+
+  // --- ACTIONS MODAL ---
+  window.toggleModal = (show) => {
+    document.getElementById('modal').classList.toggle('active', show);
+    if(show) {
+      document.getElementById('input-date').value = new Date().toISOString().split('T')[0];
+      loadExistingData(document.getElementById('input-date').value);
     }
-  </script>
+  };
+
+  window.loadExistingData = (date) => {
+    const d = planningData[date] || { in: '', out: '', lunchOut: '', lunchIn: '' };
+    document.getElementById('input-in').value = d.in;
+    document.getElementById('input-out').value = d.out;
+    document.getElementById('input-lout').value = d.lunchOut;
+    document.getElementById('input-lin').value = d.lunchIn;
+  };
+
+  window.handleSave = async () => {
+    const date = document.getElementById('input-date').value;
+    const data = {
+      in: document.getElementById('input-in').value,
+      out: document.getElementById('input-out').value,
+      lunchOut: document.getElementById('input-lout').value,
+      lunchIn: document.getElementById('input-lin').value
+    };
+    if(!date || !data.in) return alert("Date et Heure d'entrée requises");
+    await setDoc(doc(db, "planning", date), data);
+    toggleModal(false);
+  };
+
+  window.handleDelete = async () => {
+    const date = document.getElementById('input-date').value;
+    if(date && confirm("Supprimer cette journée ?")) {
+      await deleteDoc(doc(db, "planning", date));
+      toggleModal(false);
+    }
+  };
+
+  // Theme
+  document.getElementById('themeToggle').onclick = () => {
+    const t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', t);
+    document.getElementById('themeToggle').innerText = t === 'dark' ? '🌙' : '☀️';
+  };
+
+  // Init par défaut sur le mois
+  setPeriod('month');
+</script>
 </body>
 </html>
-
