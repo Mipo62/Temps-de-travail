@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="fr" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WorkTime Pro</title>
+  <title>Working Time</title>
   <link rel="manifest" href="./manifest.json">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
@@ -23,8 +22,10 @@
     .container { max-width: 500px; margin: 0 auto; padding-bottom: 80px; }
 
     /* Header */
-    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .header h1 { font-size: 1.5rem; font-weight: 800; color: var(--primary); }
+    .header { margin-bottom: 25px; }
+    .header-top { display: flex; justify-content: space-between; align-items: center; }
+    .header h1 { font-size: 1.8rem; font-weight: 800; color: var(--primary); letter-spacing: -0.5px; }
+    .subtitle { font-size: 0.85rem; color: var(--fg-muted); margin-top: 4px; font-style: italic; }
 
     /* Vue d'ensemble */
     .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
@@ -35,18 +36,28 @@
     /* Filtres */
     .filter-section { margin-bottom: 20px; }
     .period-btns { display: flex; gap: 8px; margin-bottom: 12px; }
-    .btn-period { flex: 1; padding: 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--fg-muted); font-weight: 600; cursor: pointer; }
+    .btn-period { flex: 1; padding: 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--fg-muted); font-weight: 600; cursor: pointer; transition: 0.2s; }
     .btn-period.active { background: var(--primary); color: #000; border-color: var(--primary); }
-    .range-inputs { display: flex; gap: 10px; align-items: center; background: var(--surface); padding: 10px; border-radius: 12px; }
+    .range-inputs { display: flex; gap: 10px; align-items: center; background: var(--surface); padding: 10px; border-radius: 12px; border: 1px solid var(--border); }
     .range-inputs input { background: transparent; border: none; color: var(--fg); font-size: 0.85rem; width: 100%; outline: none; }
 
     /* Graphique */
-    .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 15px; height: 220px; margin-bottom: 20px; }
+    .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 15px; height: 220px; margin-bottom: 12px; }
+
+    /* Section Détails */
+    .details-section { margin-bottom: 20px; }
+    .btn-details { width: 100%; padding: 12px; background: var(--surface); border: 1px solid var(--border); color: var(--fg); border-radius: 12px; cursor: pointer; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+    #details-list { display: none; margin-top: 10px; }
+    #details-list.active { display: block; }
+    .detail-item { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px; display: grid; grid-template-columns: 1fr 1fr 1fr; font-size: 0.85rem; align-items: center; }
+    .detail-item:last-child { border-bottom: none; border-radius: 0 0 12px 12px; }
+    .detail-item:first-child { border-radius: 12px 12px 0 0; font-weight: bold; background: var(--elevated); }
 
     /* Bouton Flottant Saisie */
-    .fab { position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; background: var(--primary); color: #000; border: none; border-radius: 50%; font-size: 2rem; cursor: pointer; box-shadow: 0 10px 25px rgba(56, 189, 248, 0.4); display: flex; align-items: center; justify-content: center; z-index: 99; }
+    .fab { position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; background: var(--primary); color: #000; border: none; border-radius: 50%; font-size: 2rem; cursor: pointer; box-shadow: 0 10px 25px rgba(56, 189, 248, 0.4); display: flex; align-items: center; justify-content: center; z-index: 99; transition: 0.3s; }
+    .fab:active { transform: scale(0.9); }
 
-    /* Fieldset Flottant (Modal) */
+    /* Modal Saisie */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
     .modal-overlay.active { display: flex; }
     .floating-fieldset { background: var(--elevated); width: 100%; max-width: 400px; border-radius: 24px; padding: 24px; border: 1px solid var(--border); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
@@ -62,31 +73,19 @@
 
 <div class="container">
   <header class="header">
-    <h1>WorkTime</h1>
-    <div id="themeToggle" style="cursor: pointer; font-size: 1.2rem;">🌙</div>
+    <div class="header-top">
+      <h1>Working Time</h1>
+      <div id="themeToggle" style="cursor: pointer; font-size: 1.2rem;">🌙</div>
+    </div>
+    <p class="subtitle">Mesurer le temps pour mieux le gérer</p>
   </header>
 
   <div class="stats-grid">
-    <div class="stat-card">
-      <p class="stat-label">Moy. Travail</p>
-      <div class="stat-value" id="stat-avg-work">--</div>
-    </div>
-    <div class="stat-card">
-      <p class="stat-label">Nb Jours</p>
-      <div class="stat-value" id="stat-count">0</div>
-    </div>
-    <div class="stat-card">
-      <p class="stat-label">Arrivée Moy.</p>
-      <div class="stat-value" id="stat-avg-in">--</div>
-    </div>
-    <div class="stat-card">
-      <p class="stat-label">Départ Moy.</p>
-      <div class="stat-value" id="stat-avg-out">--</div>
-    </div>
-    <div class="stat-card" style="grid-column: span 2;">
-      <p class="stat-label">Pause Déj Moyenne</p>
-      <div class="stat-value" id="stat-avg-lunch">--</div>
-    </div>
+    <div class="stat-card"><p class="stat-label">Moy. Travail</p><div class="stat-value" id="stat-avg-work">--</div></div>
+    <div class="stat-card"><p class="stat-label">Nb Jours</p><div class="stat-value" id="stat-count">0</div></div>
+    <div class="stat-card"><p class="stat-label">Arrivée Moy.</p><div class="stat-value" id="stat-avg-in">--</div></div>
+    <div class="stat-card"><p class="stat-label">Départ Moy.</p><div class="stat-value" id="stat-avg-out">--</div></div>
+    <div class="stat-card" style="grid-column: span 2;"><p class="stat-label">Pause Déj Moyenne</p><div class="stat-value" id="stat-avg-lunch">--</div></div>
   </div>
 
   <div class="filter-section">
@@ -101,8 +100,14 @@
     </div>
   </div>
 
-  <div class="chart-card">
-    <canvas id="mainChart"></canvas>
+  <div class="chart-card"><canvas id="mainChart"></canvas></div>
+
+  <div class="details-section">
+    <button class="btn-details" onclick="document.getElementById('details-list').classList.toggle('active')">
+      Voir les détails des enregistrements <span>▼</span>
+    </button>
+    <div id="details-list">
+      </div>
   </div>
 </div>
 
@@ -114,11 +119,7 @@
       <h3 style="font-weight: 700;">Nouvelle Saisie</h3>
       <button onclick="toggleModal(false)" style="background:none; border:none; color:var(--fg-muted); font-size:1.5rem; cursor:pointer;">&times;</button>
     </div>
-    
-    <div class="form-group">
-      <label>Date</label>
-      <input type="date" id="input-date" class="form-input" onchange="loadExistingData(this.value)">
-    </div>
+    <div class="form-group"><label>Date</label><input type="date" id="input-date" class="form-input" onchange="loadExistingData(this.value)"></div>
     <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
       <div><label>Arrivée</label><input type="time" id="input-in" class="form-input"></div>
       <div><label>Départ</label><input type="time" id="input-out" class="form-input"></div>
@@ -127,9 +128,8 @@
       <div><label>Sortie Déj</label><input type="time" id="input-lout" class="form-input"></div>
       <div><label>Retour Déj</label><input type="time" id="input-lin" class="form-input"></div>
     </div>
-
     <div class="modal-btns">
-      <button class="btn-delete" id="btn-del" onclick="handleDelete()">🗑️</button>
+      <button class="btn-delete" onclick="handleDelete()">🗑️</button>
       <button class="btn-save" onclick="handleSave()">💾 Enregistrer</button>
     </div>
   </div>
@@ -142,99 +142,102 @@
   let planningData = {};
   let chart;
 
-  // Initialisation Firestore
   onSnapshot(collection(db, "planning"), (snapshot) => {
     planningData = {};
     snapshot.forEach(doc => { planningData[doc.id] = doc.data(); });
-    manualFilter(); // Met à jour l'affichage selon le filtre actuel
+    manualFilter();
   });
 
-  // --- LOGIQUE FILTRAGE ---
-  function manualFilter() {
-    const start = document.getElementById('filter-start').value;
-    const end = document.getElementById('filter-end').value;
-    if(!start || !end) return;
-
-    const filtered = Object.entries(planningData)
-      .filter(([date]) => date >= start && date <= end)
-      .sort((a,b) => a[0].localeCompare(b[0]));
-
-    updateStats(filtered);
-    updateChart(filtered);
-  }
-  window.manualFilter = manualFilter;
-
-  function setPeriod(type) {
-    const today = new Date();
-    let start = new Date();
-    if (type === 'week') start.setDate(today.getDate() - 7);
-    if (type === 'month') start.setMonth(today.getMonth() - 1);
-    
-    document.getElementById('filter-start').value = start.toISOString().split('T')[0];
-    document.getElementById('filter-end').value = today.toISOString().split('T')[0];
-    
-    document.querySelectorAll('.btn-period').forEach(b => b.classList.toggle('active', b.innerText.toLowerCase().includes(type)));
-    manualFilter();
-  }
-  window.setPeriod = setPeriod;
-
-  // --- CALCULS STATS ---
   const toMins = (t) => { if(!t) return null; const [h, m] = t.split(':').map(Number); return h * 60 + m; };
   const fromMins = (m) => `${Math.floor(m / 60)}h${(m % 60).toString().padStart(2, '0')}`;
   const fromMinsToTime = (m) => `${Math.floor(m / 60).toString().padStart(2, '0')}:${(m % 60).toString().padStart(2, '0')}`;
+  const formatDateFr = (dateStr) => {
+    const [y, m, d] = dateStr.split('-');
+    return `${d}/${m}`;
+  };
+
+  window.manualFilter = () => {
+    const start = document.getElementById('filter-start').value;
+    const end = document.getElementById('filter-end').value;
+    const filtered = Object.entries(planningData)
+      .filter(([date]) => date >= start && date <= end)
+      .sort((a,b) => a[0].localeCompare(b[0]));
+    updateStats(filtered);
+    updateChart(filtered);
+    updateDetailsList(filtered);
+  };
+
+  window.setPeriod = (type) => {
+    const today = new Date();
+    let start = new Date();
+    if (type === 'week') start.setDate(today.getDate() - 7);
+    else start.setMonth(today.getMonth() - 1);
+    document.getElementById('filter-start').value = start.toISOString().split('T')[0];
+    document.getElementById('filter-end').value = today.toISOString().split('T')[0];
+    document.querySelectorAll('.btn-period').forEach(b => b.classList.toggle('active', b.innerText.toLowerCase().includes(type)));
+    manualFilter();
+  };
 
   function updateStats(entries) {
-    if(!entries.length) {
-      document.querySelectorAll('.stat-value').forEach(el => el.innerText = '--');
-      document.getElementById('stat-count').innerText = '0';
-      return;
-    }
-
-    let totalWork = 0, sumIn = 0, sumOut = 0, sumLunch = 0;
-    let countIn = 0, countOut = 0, countL = 0;
-
+    if(!entries.length) return document.querySelectorAll('.stat-value').forEach(el => el.innerText = '--');
+    let totalWork = 0, sumIn = 0, sumOut = 0, sumLunch = 0, countL = 0;
     entries.forEach(([_, d]) => {
       const minsIn = toMins(d.in), minsOut = toMins(d.out), lOut = toMins(d.lunchOut), lIn = toMins(d.lunchIn);
       if(minsIn && minsOut) {
         let work = minsOut - minsIn;
         if(lOut && lIn) { work -= (lIn - lOut); sumLunch += (lIn - lOut); countL++; }
         totalWork += work;
-        sumIn += minsIn; countIn++;
-        sumOut += minsOut; countOut++;
+        sumIn += minsIn; sumOut += minsOut;
       }
     });
-
     document.getElementById('stat-avg-work').innerText = fromMins(Math.round(totalWork / entries.length));
     document.getElementById('stat-count').innerText = entries.length;
-    document.getElementById('stat-avg-in').innerText = countIn ? fromMinsToTime(Math.round(sumIn / countIn)) : '--';
-    document.getElementById('stat-avg-out').innerText = countOut ? fromMinsToTime(Math.round(sumOut / countOut)) : '--';
+    document.getElementById('stat-avg-in').innerText = fromMinsToTime(Math.round(sumIn / entries.length));
+    document.getElementById('stat-avg-out').innerText = fromMinsToTime(Math.round(sumOut / entries.length));
     document.getElementById('stat-avg-lunch').innerText = countL ? fromMins(Math.round(sumLunch / countL)) : '--';
   }
 
-  // --- GRAPH ---
+  function updateDetailsList(entries) {
+    const list = document.getElementById('details-list');
+    let html = '<div class="detail-item"><div>Date</div><div>Horaires</div><div>Durée</div></div>';
+    entries.reverse().forEach(([date, d]) => {
+      let work = toMins(d.out) - toMins(d.in);
+      if(d.lunchOut && d.lunchIn) work -= (toMins(d.lunchIn) - toMins(d.lunchOut));
+      html += `<div class="detail-item">
+        <div>${date.split('-').reverse().join('/')}</div>
+        <div style="color:var(--fg-muted)">${d.in} - ${d.out}</div>
+        <div style="font-weight:bold; color:var(--primary)">${fromMins(work)}</div>
+      </div>`;
+    });
+    list.innerHTML = html;
+  }
+
   function updateChart(entries) {
     const ctx = document.getElementById('mainChart').getContext('2d');
-    const labels = entries.map(e => e[0].slice(5));
+    const labels = entries.map(e => formatDateFr(e[0]));
     const data = entries.map(([_, d]) => {
       let work = toMins(d.out) - toMins(d.in);
       if(d.lunchOut && d.lunchIn) work -= (toMins(d.lunchIn) - toMins(d.lunchOut));
       return (work / 60).toFixed(2);
     });
-
     if (chart) chart.destroy();
     chart = new Chart(ctx, {
       type: 'line',
       data: { labels, datasets: [{ data, borderColor: '#38bdf8', tension: 0.4, fill: true, backgroundColor: 'rgba(56,189,248,0.1)' }] },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+      options: { 
+        responsive: true, maintainAspectRatio: false, 
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, grid: { color: 'rgba(148, 163, 184, 0.1)' } }, x: { grid: { display: false } } }
+      }
     });
   }
 
-  // --- ACTIONS MODAL ---
   window.toggleModal = (show) => {
     document.getElementById('modal').classList.toggle('active', show);
     if(show) {
-      document.getElementById('input-date').value = new Date().toISOString().split('T')[0];
-      loadExistingData(document.getElementById('input-date').value);
+      const dInput = document.getElementById('input-date');
+      if(!dInput.value) dInput.value = new Date().toISOString().split('T')[0];
+      loadExistingData(dInput.value);
     }
   };
 
@@ -248,12 +251,7 @@
 
   window.handleSave = async () => {
     const date = document.getElementById('input-date').value;
-    const data = {
-      in: document.getElementById('input-in').value,
-      out: document.getElementById('input-out').value,
-      lunchOut: document.getElementById('input-lout').value,
-      lunchIn: document.getElementById('input-lin').value
-    };
+    const data = { in: document.getElementById('input-in').value, out: document.getElementById('input-out').value, lunchOut: document.getElementById('input-lout').value, lunchIn: document.getElementById('input-lin').value };
     if(!date || !data.in) return alert("Date et Heure d'entrée requises");
     await setDoc(doc(db, "planning", date), data);
     toggleModal(false);
@@ -267,16 +265,13 @@
     }
   };
 
-  // Theme
   document.getElementById('themeToggle').onclick = () => {
     const t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', t);
     document.getElementById('themeToggle').innerText = t === 'dark' ? '🌙' : '☀️';
   };
 
-  // Init par défaut sur le mois
   setPeriod('month');
 </script>
 </body>
 </html>
-
