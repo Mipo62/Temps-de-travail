@@ -3,121 +3,297 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Working Time - Double API</title>
-  
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <title>Working Time</title>
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#2c3e50">
+  <link rel="apple-touch-icon" href="icon-192.png">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  
   <style>
-    :root { --primary: #38bdf8; --bg: #0a0e1a; --surface: rgba(30, 41, 59, 0.7); --fg: #f1f5f9; }
-    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--fg); padding: 16px; }
-    .container { max-width: 500px; margin: 0 auto; text-align: center; }
-    .card { background: var(--surface); border-radius: 16px; padding: 20px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; text-align: left; }
-    #login-view { padding: 60px 0; }
-    #app-content { display: none; }
-    .btn-save { width: 100%; padding: 14px; background: var(--primary); color: #000; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
-    .icon-box { background: var(--primary); color: #000; width: 35px; height: 35px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; margin-right: 8px; }
-    input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #444; background: #1e293b; color: #fff; margin-top: 5px; }
-    #error-display { color: #ef4444; font-size: 0.8rem; margin-top: 15px; }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    :root {
+      --bg-dark: #0a0e1a;
+      --bg-surface: rgba(15, 23, 42, 0.6);
+      --bg-elevated: rgba(30, 41, 59, 0.8);
+      --fg: #f1f5f9;
+      --fg-muted: #94a3b8;
+      --primary: #38bdf8;
+      --primary-glow: rgba(56, 189, 248, 0.2);
+      --accent-green: #10b981;
+      --accent-orange: #fb923c;
+      --accent-purple: #a78bfa;
+      --border: rgba(148, 163, 184, 0.15);
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+      --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.15);
+      --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.2);
+      --radius-sm: 12px;
+      --radius-md: 16px;
+      --radius-lg: 20px;
+    }
+
+    [data-theme="light"] {
+      --bg-dark: #f8fafc;
+      --bg-surface: rgba(255, 255, 255, 0.7);
+      --bg-elevated: rgba(255, 255, 255, 0.9);
+      --fg: #0f172a;
+      --fg-muted: #64748b;
+      --border: rgba(148, 163, 184, 0.2);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, var(--bg-dark) 0%, #1e293b 100%);
+      color: var(--fg);
+      min-height: 100vh;
+      padding: 16px;
+    }
+
+    .container { max-width: 540px; margin: 0 auto; }
+
+    /* Header & Themes */
+    .header { margin-bottom: 24px; }
+    .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .greeting { font-size: 1.75rem; font-weight: 700; background: linear-gradient(135deg, var(--primary) 0%, var(--accent-purple) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .theme-switch { background: var(--bg-surface); backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: 999px; padding: 6px; display: flex; gap: 4px; cursor: pointer; }
+    .theme-option { padding: 8px 14px; border-radius: 999px; font-size: 0.875rem; color: var(--fg-muted); }
+    .theme-option.active { background: var(--primary); color: #0a0e1a; }
+
+    /* Cards & Stats */
+    .stats-card { background: var(--bg-surface); backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 20px; }
+    .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 16px; }
+    .stat-item { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px; }
+    .stat-label { font-size: 0.8125rem; color: var(--fg-muted); margin-bottom: 8px; text-transform: uppercase; }
+    .stat-value { font-size: 1.5rem; font-weight: 700; color: var(--primary); }
+
+    /* Tabs */
+    .tabs { display: flex; gap: 10px; margin-bottom: 20px; background: var(--bg-surface); padding: 6px; border-radius: var(--radius-md); }
+    .tab { flex: 1; padding: 12px; border: none; background: transparent; color: var(--fg-muted); font-weight: 600; cursor: pointer; border-radius: var(--radius-sm); }
+    .tab.active { background: var(--primary); color: #fff; }
+
+    /* Form */
+    .card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 20px; }
+    .form-group { margin-bottom: 20px; }
+    .form-label { display: block; font-size: 0.875rem; margin-bottom: 8px; }
+    .form-input { width: 100%; padding: 14px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--fg); font-family: inherit; }
+    .form-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+
+    /* Buttons */
+    .btn-group { display: flex; gap: 12px; margin-top: 24px; }
+    .btn { flex: 1; padding: 14px; border: none; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn-primary { background: var(--primary); color: #0a0e1a; }
+    .btn-secondary { background: var(--bg-elevated); color: var(--fg); border: 1px solid var(--border); }
+
+    .chart-container { height: 220px; margin: 20px 0; }
+    .view { display: none; }
+    .view.active { display: block; }
   </style>
 </head>
+
 <body>
   <div class="container">
-    
-    <div id="login-view">
-      <h1 style="color: var(--primary); margin-bottom: 10px;">Working Time</h1>
-      <p style="color: #94a3b8; margin-bottom: 30px;">Connexion directe via Google API</p>
-      
-      <div id="g_id_onload"
-           data-client_id="172774543780-REMPLACER_PAR_TON_ID_REEL.apps.googleusercontent.com"
-           data-callback="handleSignIn"
-           data-auto_prompt="false">
+    <header class="header">
+      <div class="header-top">
+        <h1 class="greeting">Working Time 👋</h1>
+        <div class="theme-switch" id="themeSwitch">
+          <div class="theme-option" data-theme="dark">🌙</div>
+          <div class="theme-option" data-theme="light">☀️</div>
+        </div>
       </div>
-      <div class="g_id_signin" data-type="standard" data-shape="rectangular" data-theme="outline" data-size="large"></div>
-      
-      <div id="error-display"></div>
+      <p style="color: var(--fg-muted)">Gestionnaire synchronisé</p>
+    </header>
+
+    <div class="stats-card">
+      <div class="stat-label">Vue d'ensemble</div>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-label">Moyenne/jour</div>
+          <div class="stat-value" id="avgDay">--</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Total période</div>
+          <div class="stat-value" id="totalHours">0h</div>
+          <div id="workedDays" style="font-size: 0.75rem; color: var(--fg-muted)">0 jour</div>
+        </div>
+      </div>
     </div>
 
-    <div id="app-content">
-      <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h2 id="welcome-msg">Bonjour</h2>
-        <button onclick="location.reload()" style="background:none; border:none; color:#94a3b8; cursor:pointer;">🚪</button>
-      </header>
+    <div class="tabs">
+      <button class="tab active" data-view="saisie">📝 Saisie</button>
+      <button class="tab" data-view="analyse">📊 Analyse</button>
+    </div>
 
+    <div id="view-saisie" class="view active">
       <div class="card">
-        <div style="margin-bottom:15px;">
-          <label style="font-size:0.9rem; font-weight:600;"><span class="icon-box">📅</span> Date</label>
-          <input type="date" id="workDate">
+        <div class="form-group">
+          <label class="form-label">📅 Date</label>
+          <input type="date" id="workDate" class="form-input">
         </div>
-        <div style="margin-bottom:20px;">
-          <label style="font-size:0.9rem; font-weight:600;"><span class="icon-box">⏱️</span> Horaires</label>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <input type="time" id="inTime" value="08:30">
-            <input type="time" id="outTime" value="17:30">
+        <div class="form-group">
+          <label class="form-label">⏱️ Arrivée / Départ</label>
+          <div class="form-row">
+            <input type="time" id="inTime" class="form-input">
+            <input type="time" id="outTime" class="form-input">
           </div>
         </div>
-        <button id="saveBtn" class="btn-save">💾 Enregistrer dans Firestore</button>
-        <p id="feedback" style="text-align:center; color:#10b981; margin-top:10px; font-weight:bold;"></p>
+        <div class="form-group">
+          <label class="form-label">🍽️ Pause Déjeuner (Sortie / Retour)</label>
+          <div class="form-row">
+            <input type="time" id="lunchOut" class="form-input">
+            <input type="time" id="lunchIn" class="form-input">
+          </div>
+        </div>
+        <div class="btn-group">
+          <button id="saveBtn" class="btn btn-primary">💾 Enregistrer</button>
+          <button id="clearBtn" class="btn btn-secondary">🗑️ Effacer</button>
+        </div>
       </div>
     </div>
 
+    <div id="view-analyse" class="view">
+      <div class="card">
+        <h2 class="form-label">Évolution des heures</h2>
+        <div class="chart-container">
+          <canvas id="workChart"></canvas>
+        </div>
+      </div>
+      <div class="btn-group">
+        <button id="historyBtn" class="btn btn-secondary">📋 Historique</button>
+        <button id="exportBtn" class="btn btn-secondary">📤 Exporter</button>
+      </div>
+    </div>
   </div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-    import { getAuth, GoogleAuthProvider, signInWithCredential } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { db } from './firebase-config.js';
+    import { collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // Ta configuration Firebase (Le stockage)
-    const firebaseConfig = {
-      apiKey: "AIzaSyD4anyzUy4jmXG1f6nvuWzphHdtR1mYg2c",
-      authDomain: "working-time-33018.firebaseapp.com",
-      projectId: "working-time-33018"
+    let planningData = {};
+    let chart;
+
+    // --- SYNCHRONISATION TEMPS RÉEL ---
+    const planningRef = collection(db, "planning");
+    onSnapshot(planningRef, (snapshot) => {
+      planningData = {};
+      snapshot.forEach(doc => { planningData[doc.id] = doc.data(); });
+      updateStats();
+      updateChart();
+      loadDay();
+    });
+
+    // --- THEME ---
+    const themeOptions = document.querySelectorAll('.theme-option');
+    const setTheme = (theme) => {
+      document.body.setAttribute('data-theme', theme);
+      localStorage.setItem("planning.theme", theme);
+      themeOptions.forEach(opt => opt.classList.toggle('active', opt.dataset.theme === theme));
     };
+    themeOptions.forEach(opt => opt.addEventListener('click', () => setTheme(opt.dataset.theme)));
+    setTheme(localStorage.getItem("planning.theme") || 'dark');
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
-    let userId = null;
+    // --- NAVIGATION ---
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab, .view').forEach(el => el.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(`view-${tab.dataset.view}`).classList.add('active');
+      });
+    });
 
-    // Fonction déclenchée après le succès du bouton Google
-    window.handleSignIn = async (response) => {
-      try {
-        // Étape A : On s'authentifie auprès de Firebase avec le jeton Google
-        const credential = GoogleAuthProvider.credential(response.credential);
-        const result = await signInWithCredential(auth, credential);
-        userId = result.user.uid;
+    // --- CALCULS ---
+    function computeMinutes(day) {
+      if (!day || !day.in || !day.out) return 0;
+      const toMins = (t) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+      let total = toMins(day.out) - toMins(day.in);
+      if (day.lunchOut && day.lunchIn) total -= (toMins(day.lunchIn) - toMins(day.lunchOut));
+      return Math.max(total, 0);
+    }
 
-        // Étape B : On bascule l'interface
-        document.getElementById('login-view').style.display = 'none';
-        document.getElementById('app-content').style.display = 'block';
-        document.getElementById('welcome-msg').textContent = `Salut ${result.user.displayName.split(' ')[0]} 👋`;
-        
-      } catch (error) {
-        document.getElementById('error-display').textContent = "Erreur Firebase : " + error.code;
-      }
-    };
+    function formatHours(mins) {
+      return `${Math.floor(mins / 60)}h${(mins % 60).toString().padStart(2, '0')}`;
+    }
 
-    // Action d'enregistrement
-    document.getElementById('saveBtn').onclick = async () => {
+    function updateStats() {
+      const entries = Object.values(planningData);
+      if (!entries.length) return;
+      const totalMins = entries.reduce((acc, day) => acc + computeMinutes(day), 0);
+      document.getElementById('totalHours').textContent = formatHours(totalMins);
+      document.getElementById('workedDays').textContent = `${entries.length} jour(s)`;
+      document.getElementById('avgDay').textContent = formatHours(Math.round(totalMins / entries.length));
+    }
+
+    function loadDay() {
       const date = document.getElementById('workDate').value;
-      if (!date || !userId) return;
+      const day = planningData[date] || { in: '', out: '', lunchOut: '', lunchIn: '' };
+      document.getElementById('inTime').value = day.in;
+      document.getElementById('outTime').value = day.out;
+      document.getElementById('lunchOut').value = day.lunchOut;
+      document.getElementById('lunchIn').value = day.lunchIn;
+    }
 
-      try {
-        await setDoc(doc(db, "planning", date), {
-          uid: userId,
-          in: document.getElementById('inTime').value,
-          out: document.getElementById('outTime').value,
-          updatedAt: new Date().getTime()
-        });
-        document.getElementById('feedback').textContent = "✅ Sauvegardé !";
-        setTimeout(() => document.getElementById('feedback').textContent = "", 3000);
-      } catch (e) {
-        alert("Erreur stockage : " + e.message);
-      }
-    };
+    // --- ACTIONS ---
+    document.getElementById('saveBtn').addEventListener('click', async () => {
+      const date = document.getElementById('workDate').value;
+      const data = {
+        in: document.getElementById('inTime').value,
+        out: document.getElementById('outTime').value,
+        lunchOut: document.getElementById('lunchOut').value,
+        lunchIn: document.getElementById('lunchIn').value
+      };
+      if (!date || !data.in || !data.out) return alert("Remplissez la date et les horaires !");
+      
+      const btn = document.getElementById('saveBtn');
+      btn.textContent = "⏳...";
+      await setDoc(doc(db, "planning", date), data);
+      btn.textContent = "💾 Enregistrer";
+    });
 
+    document.getElementById('clearBtn').addEventListener('click', async () => {
+      const date = document.getElementById('workDate').value;
+      if (date && confirm("Supprimer ce jour ?")) await deleteDoc(doc(db, "planning", date));
+    });
+
+    document.getElementById('workDate').addEventListener('change', loadDay);
     document.getElementById('workDate').value = new Date().toISOString().slice(0, 10);
+
+    // --- CHART ---
+    function updateChart() {
+      const ctx = document.getElementById('workChart').getContext('2d');
+      const sorted = Object.entries(planningData).sort((a, b) => a[0].localeCompare(b[0])).slice(-7);
+      const labels = sorted.map(s => s[0].slice(5));
+      const data = sorted.map(s => computeMinutes(s[1]) / 60);
+
+      if (chart) { chart.data.labels = labels; chart.data.datasets[0].data = data; chart.update(); }
+      else {
+        chart = new Chart(ctx, {
+          type: 'line',
+          data: { labels, datasets: [{ label: 'Heures', data, borderColor: '#38bdf8', tension: 0.4, fill: true, backgroundColor: 'rgba(56, 189, 248, 0.1)' }] },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+      }
+    }
+
+    // --- HISTORIQUE & EXPORT ---
+    document.getElementById('historyBtn').addEventListener('click', () => {
+      const lines = Object.entries(planningData).sort().map(([d, data]) => `${d}: ${formatHours(computeMinutes(data))}`);
+      alert(lines.join('\n') || "Aucune donnée");
+    });
+
+    document.getElementById('exportBtn').addEventListener('click', () => {
+      const blob = new Blob([JSON.stringify(planningData, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `working-time-export.json`;
+      a.click();
+    });
+
+    // PWA Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').then(() => console.log('PWA active'));
+      });
+    }
   </script>
 </body>
 </html>
