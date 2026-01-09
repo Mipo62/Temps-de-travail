@@ -3,20 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Working Time - Hybride</title>
+  <title>Working Time - Double API</title>
+  
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
   <style>
     :root { --primary: #38bdf8; --bg: #0a0e1a; --surface: rgba(30, 41, 59, 0.7); --fg: #f1f5f9; }
-    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--fg); padding: 16px; text-align: center; }
-    .container { max-width: 500px; margin: 0 auto; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--fg); padding: 16px; }
+    .container { max-width: 500px; margin: 0 auto; text-align: center; }
     .card { background: var(--surface); border-radius: 16px; padding: 20px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; text-align: left; }
-    #login-view { padding: 50px 0; }
+    #login-view { padding: 60px 0; }
     #app-content { display: none; }
-    .btn { width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; background: var(--primary); color: #000; margin-top: 10px; }
-    .form-group { margin-bottom: 15px; }
-    input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #444; background: #1e293b; color: #fff; }
+    .btn-save { width: 100%; padding: 14px; background: var(--primary); color: #000; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
     .icon-box { background: var(--primary); color: #000; width: 35px; height: 35px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; margin-right: 8px; }
+    input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #444; background: #1e293b; color: #fff; margin-top: 5px; }
+    #error-display { color: #ef4444; font-size: 0.8rem; margin-top: 15px; }
   </style>
 </head>
 <body>
@@ -24,42 +26,39 @@
     
     <div id="login-view">
       <h1 style="color: var(--primary); margin-bottom: 10px;">Working Time</h1>
-      <p style="color: #94a3b8; margin-bottom: 30px;">Authentification via Google API</p>
+      <p style="color: #94a3b8; margin-bottom: 30px;">Connexion directe via Google API</p>
       
       <div id="g_id_onload"
-           data-client_id="172774543780-vps298un7m17e9v0v0v0v0v0v0v0.apps.googleusercontent.com"
-           data-context="signin"
-           data-ux_mode="popup"
-           data-callback="onGoogleLogin"
+           data-client_id="172774543780-REMPLACER_PAR_TON_ID_REEL.apps.googleusercontent.com"
+           data-callback="handleSignIn"
            data-auto_prompt="false">
       </div>
-      <div class="g_id_signin" data-type="standard" data-shape="rectangular" data-theme="outline" data-text="signin_with" data-size="large" data-logo_alignment="left" style="display: flex; justify-content: center;"></div>
+      <div class="g_id_signin" data-type="standard" data-shape="rectangular" data-theme="outline" data-size="large"></div>
       
-      <div id="status-log" style="margin-top:20px; font-size: 0.8rem; color: #94a3b8;">Attente de connexion...</div>
+      <div id="error-display"></div>
     </div>
 
     <div id="app-content">
       <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h2 id="user-greeting" style="font-size: 1.2rem;">Bonjour</h2>
-        <button onclick="location.reload()" style="background:none; border:none; color: #94a3b8; cursor:pointer; font-size: 0.8rem;">Déconnexion</button>
+        <h2 id="welcome-msg">Bonjour</h2>
+        <button onclick="location.reload()" style="background:none; border:none; color:#94a3b8; cursor:pointer;">🚪</button>
       </header>
 
       <div class="card">
-        <div class="form-group">
-          <label><span class="icon-box">📅</span> Date</label>
+        <div style="margin-bottom:15px;">
+          <label style="font-size:0.9rem; font-weight:600;"><span class="icon-box">📅</span> Date</label>
           <input type="date" id="workDate">
         </div>
-        <div class="form-group">
-          <label><span class="icon-box">⏱️</span> Horaires</label>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top:5px;">
-            <input type="time" id="inTime" value="08:00">
-            <input type="time" id="outTime" value="17:00">
+        <div style="margin-bottom:20px;">
+          <label style="font-size:0.9rem; font-weight:600;"><span class="icon-box">⏱️</span> Horaires</label>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <input type="time" id="inTime" value="08:30">
+            <input type="time" id="outTime" value="17:30">
           </div>
         </div>
-        <button id="saveBtn" class="btn">💾 Enregistrer dans Firebase</button>
+        <button id="saveBtn" class="btn-save">💾 Enregistrer dans Firestore</button>
+        <p id="feedback" style="text-align:center; color:#10b981; margin-top:10px; font-weight:bold;"></p>
       </div>
-      
-      <div id="feedback" style="color: #10b981; font-weight: bold; margin-top: 10px;"></div>
     </div>
 
   </div>
@@ -69,9 +68,9 @@
     import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
     import { getAuth, GoogleAuthProvider, signInWithCredential } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    // Ta config Firebase pour le stockage
+    // Ta configuration Firebase (Le stockage)
     const firebaseConfig = {
-      apiKey: "AIzaSyD4anyzUy4jmXG1f6nvuWzphHdtR1mYg2c", 
+      apiKey: "AIzaSyD4anyzUy4jmXG1f6nvuWzphHdtR1mYg2c",
       authDomain: "working-time-33018.firebaseapp.com",
       projectId: "working-time-33018"
     };
@@ -79,49 +78,42 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
-    let currentUser = null;
+    let userId = null;
 
-    // FONCTION CALLBACK APPELÉE PAR GOOGLE
-    window.onGoogleLogin = async (response) => {
-      document.getElementById('status-log').textContent = "Vérification de l'identité...";
-      
+    // Fonction déclenchée après le succès du bouton Google
+    window.handleSignIn = async (response) => {
       try {
-        // On transforme le jeton Google en identifiant Firebase
+        // Étape A : On s'authentifie auprès de Firebase avec le jeton Google
         const credential = GoogleAuthProvider.credential(response.credential);
         const result = await signInWithCredential(auth, credential);
-        
-        currentUser = result.user;
-        
-        // On bascule l'affichage
+        userId = result.user.uid;
+
+        // Étape B : On bascule l'interface
         document.getElementById('login-view').style.display = 'none';
         document.getElementById('app-content').style.display = 'block';
-        document.getElementById('user-greeting').textContent = `Salut ${currentUser.displayName.split(' ')[0]} 👋`;
+        document.getElementById('welcome-msg').textContent = `Salut ${result.user.displayName.split(' ')[0]} 👋`;
         
       } catch (error) {
-        console.error(error);
-        document.getElementById('status-log').innerHTML = `<span style="color:#ef4444">Erreur: ${error.code}</span>`;
+        document.getElementById('error-display').textContent = "Erreur Firebase : " + error.code;
       }
     };
 
-    // ACTION ENREGISTRER DANS FIRESTORE
+    // Action d'enregistrement
     document.getElementById('saveBtn').onclick = async () => {
       const date = document.getElementById('workDate').value;
-      if(!date || !currentUser) return alert("Date manquante");
+      if (!date || !userId) return;
 
       try {
         await setDoc(doc(db, "planning", date), {
-          userId: currentUser.uid,
-          userName: currentUser.displayName,
+          uid: userId,
           in: document.getElementById('inTime').value,
           out: document.getElementById('outTime').value,
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date().getTime()
         });
-        
-        const f = document.getElementById('feedback');
-        f.textContent = "✅ Sauvegardé dans Firestore !";
-        setTimeout(() => f.textContent = "", 3000);
+        document.getElementById('feedback').textContent = "✅ Sauvegardé !";
+        setTimeout(() => document.getElementById('feedback').textContent = "", 3000);
       } catch (e) {
-        alert("Erreur stockage: " + e.message);
+        alert("Erreur stockage : " + e.message);
       }
     };
 
