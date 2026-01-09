@@ -9,125 +9,134 @@
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+    
     :root {
       --bg: #0a0e1a; --surface: rgba(15, 23, 42, 0.7); --elevated: rgba(30, 41, 59, 0.9);
       --fg: #f1f5f9; --fg-muted: #94a3b8; --primary: #38bdf8; --border: rgba(148, 163, 184, 0.15);
-      --accent-gold: #fbbf24; --radius: 16px;
+      --accent-fire: #fb923c; --radius: 16px;
     }
+
+    /* FIX MODE CLAIR */
     [data-theme="light"] {
-      --bg: #f8fafc; --surface: rgba(255, 255, 255, 0.8); --elevated: #ffffff;
-      --fg: #0f172a; --fg-muted: #64748b; --border: rgba(0,0,0,0.1);
+      --bg: #f1f5f9; --surface: rgba(255, 255, 255, 0.8); --elevated: #ffffff;
+      --fg: #0f172a; --fg-muted: #64748b; --border: rgba(0, 0, 0, 0.1);
+      --primary: #0284c7;
     }
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--fg); padding: 16px; min-height: 100vh; transition: 0.3s; }
     .container { max-width: 500px; margin: 0 auto; padding-bottom: 80px; }
 
-    /* Header & Rank */
-    .header { margin-bottom: 25px; display: flex; justify-content: space-between; align-items: flex-start; }
-    .header h1 { font-size: 1.8rem; font-weight: 800; color: var(--primary); letter-spacing: -0.5px; }
-    .rank-badge { background: linear-gradient(90deg, var(--primary), #a78bfa); color: #000; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-top: 5px; display: inline-block; }
+    /* Header */
+    .header { margin-bottom: 20px; }
+    .header-top { display: flex; justify-content: space-between; align-items: center; }
+    h1 { font-size: 1.8rem; font-weight: 800; color: var(--primary); letter-spacing: -1px; }
+    .rank-badge { background: var(--primary); color: #fff; padding: 4px 10px; border-radius: 8px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-top: 4px; display: inline-block; }
 
-    /* Gamification Cards */
-    .gamification-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-    .streak-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 15px; text-align: center; }
-    .streak-val { font-size: 1.5rem; font-weight: 800; color: var(--accent-gold); display: block; }
-    
-    /* Progress Bar */
-    .goal-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 15px; grid-column: span 2; }
-    .progress-container { height: 10px; background: rgba(255,255,255,0.1); border-radius: 5px; margin-top: 10px; overflow: hidden; }
-    .progress-bar { height: 100%; width: 0%; background: var(--primary); transition: 1s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
+    /* Gamification (Focus Régularité) */
+    .game-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+    .game-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 15px; text-align: center; backdrop-filter: blur(10px); }
+    .streak-val { font-size: 1.6rem; font-weight: 800; color: var(--accent-fire); display: block; }
+    .game-label { font-size: 0.65rem; color: var(--fg-muted); text-transform: uppercase; font-weight: 700; }
 
-    /* Stats Grid */
-    .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
-    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 15px; }
-    .stat-label { font-size: 0.7rem; color: var(--fg-muted); text-transform: uppercase; margin-bottom: 5px; }
-    .stat-value { font-size: 1.2rem; font-weight: 700; }
+    /* STATISTIQUE MAITRESSE */
+    .main-stat-card { background: var(--surface); border: 2px solid var(--primary); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; text-align: center; }
+    .main-stat-val { font-size: 2.5rem; font-weight: 800; color: var(--fg); display: block; margin: 5px 0; }
 
-    /* Buttons & Inputs */
+    /* Filtres & Dates */
+    .filter-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 15px; margin-bottom: 20px; }
     .period-btns { display: flex; gap: 8px; margin-bottom: 12px; }
-    .btn-period { flex: 1; padding: 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--fg-muted); font-weight: 600; cursor: pointer; }
-    .btn-period.active { background: var(--primary); color: #000; }
-    .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 15px; height: 200px; margin-bottom: 20px; }
+    .btn-period { flex: 1; padding: 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--fg-muted); font-weight: 600; cursor: pointer; }
+    .btn-period.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .date-range { display: flex; gap: 8px; align-items: center; }
+    .date-range input { flex: 1; background: var(--bg); border: 1px solid var(--border); color: var(--fg); padding: 8px; border-radius: 8px; font-size: 0.8rem; }
 
-    /* Modal Saisie */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
-    .modal-overlay.active { display: flex; }
-    .floating-fieldset { background: var(--elevated); width: 100%; max-width: 400px; border-radius: 24px; padding: 24px; border: 1px solid var(--border); }
-    .form-input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--fg); font-size: 1rem; margin-top: 5px; }
+    /* Graph */
+    .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 15px; height: 220px; margin-bottom: 20px; }
+
+    /* FAB & Modal */
+    .fab { position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; background: var(--primary); color: #fff; border: none; border-radius: 50%; font-size: 2rem; cursor: pointer; box-shadow: 0 8px 20px rgba(0,0,0,0.3); z-index: 99; }
+    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+    .modal.active { display: flex; }
+    .modal-content { background: var(--elevated); width: 100%; max-width: 400px; border-radius: 24px; padding: 24px; }
+    .modal-content input { width: 100%; padding: 12px; margin-top: 5px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--fg); font-size: 1rem; }
     
-    .fab { position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; background: var(--primary); color: #000; border: none; border-radius: 50%; font-size: 2rem; cursor: pointer; z-index: 99; box-shadow: 0 8px 20px rgba(56,189,248,0.3); }
-    
-    /* Details Accordion */
-    .btn-details { width: 100%; padding: 12px; background: var(--surface); border: 1px solid var(--border); color: var(--fg); border-radius: 12px; cursor: pointer; font-weight: 600; margin-bottom: 10px; }
-    #details-list { display: none; margin-bottom: 20px; }
+    /* Historique */
+    .details-btn { width: 100%; padding: 12px; background: var(--surface); border: 1px solid var(--border); color: var(--fg); border-radius: 12px; cursor: pointer; font-weight: 600; margin-bottom: 10px; }
+    #details-list { display: none; background: var(--surface); border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
     #details-list.active { display: block; }
-    .detail-item { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px; display: grid; grid-template-columns: 1.5fr 1.5fr 1fr; font-size: 0.8rem; }
+    .detail-row { display: grid; grid-template-columns: 1fr 1fr 1fr; padding: 12px; border-bottom: 1px solid var(--border); font-size: 0.8rem; }
   </style>
 </head>
 <body>
 
 <div class="container">
   <header class="header">
-    <div>
-      <h1>Working Time</h1>
-      <div id="user-rank" class="rank-badge">Explorateur du Temps</div>
+    <div class="header-top">
+      <div>
+        <h1>Working Time</h1>
+        <div id="user-rank" class="rank-badge">Apprenti de l'Équilibre</div>
+      </div>
+      <div id="themeToggle" style="cursor: pointer; font-size: 1.4rem;">🌙</div>
     </div>
-    <div id="themeToggle" style="cursor: pointer; font-size: 1.2rem;">🌙</div>
+    <p style="color: var(--fg-muted); font-size: 0.85rem; font-style: italic;">Mesurer le temps pour mieux le gérer</p>
   </header>
 
-  <div class="gamification-row">
-    <div class="streak-card">
-      <span class="stat-label">Série de jours</span>
+  <div class="game-row">
+    <div class="game-card">
+      <span class="game-label">Assiduité</span>
       <span class="streak-val" id="streak-count">0 🔥</span>
     </div>
-    <div class="streak-card">
-      <span class="stat-label">Productivité</span>
-      <span class="streak-val" id="prod-score">--</span>
-    </div>
-    <div class="goal-card">
-      <div style="display: flex; justify-content: space-between;">
-        <span class="stat-label">Objectif du jour (7h30)</span>
-        <span id="goal-percent" style="font-weight: 800; color: var(--primary);">0%</span>
-      </div>
-      <div class="progress-container">
-        <div class="progress-bar" id="goal-bar"></div>
-      </div>
+    <div class="game-card">
+      <span class="game-label">Saisie Totale</span>
+      <span class="streak-val" id="total-entries">0 📖</span>
     </div>
   </div>
 
-  <div class="stats-grid">
-    <div class="stat-card"><p class="stat-label">Moy. Arrivée</p><div class="stat-value" id="stat-avg-in">--</div></div>
-    <div class="stat-card"><p class="stat-label">Moy. Départ</p><div class="stat-value" id="stat-avg-out">--</div></div>
+  <div class="main-stat-card">
+    <span class="game-label">Moyenne travaillée / jour</span>
+    <span class="main-stat-val" id="stat-avg-work">0h00</span>
+    <span id="stat-total-period" style="font-size: 0.8rem; color: var(--fg-muted);">Total période : 0h</span>
   </div>
 
-  <div class="period-btns">
-    <button class="btn-period active" onclick="setPeriod('week')">Semaine</button>
-    <button class="btn-period" onclick="setPeriod('month')">Mois</button>
+  <div class="filter-box">
+    <div class="period-btns">
+      <button class="btn-period" onclick="setPeriod('week')">Semaine</button>
+      <button class="btn-period active" onclick="setPeriod('month')">Mois</button>
+    </div>
+    <div class="date-range">
+      <input type="date" id="filter-start" onchange="manualFilter()">
+      <span style="color: var(--fg-muted)">→</span>
+      <input type="date" id="filter-end" onchange="manualFilter()">
+    </div>
   </div>
 
   <div class="chart-card"><canvas id="mainChart"></canvas></div>
 
-  <button class="btn-details" onclick="document.getElementById('details-list').classList.toggle('active')">Historique détaillé ▼</button>
+  <button class="details-btn" onclick="document.getElementById('details-list').classList.toggle('active')">Voir les détails de la période ▼</button>
   <div id="details-list"></div>
 </div>
 
 <button class="fab" onclick="toggleModal(true)">+</button>
 
-<div class="modal-overlay" id="modal">
-  <div class="floating-fieldset">
-    <h3 style="margin-bottom: 20px;">Saisie du jour</h3>
-    <div style="margin-bottom:15px;"><label class="stat-label">Date</label><input type="date" id="input-date" class="form-input" onchange="loadExistingData(this.value)"></div>
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom:15px;">
-      <div><label class="stat-label">Arrivée</label><input type="time" id="input-in" class="form-input"></div>
-      <div><label class="stat-label">Départ</label><input type="time" id="input-out" class="form-input"></div>
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+      <h3>Saisie du jour</h3>
+      <button onclick="toggleModal(false)" style="background:none; border:none; color:var(--fg-muted); font-size:1.5rem; cursor:pointer;">&times;</button>
     </div>
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom:20px;">
-      <div><label class="stat-label">Sortie Déj</label><input type="time" id="input-lout" class="form-input"></div>
-      <div><label class="stat-label">Retour Déj</label><input type="time" id="input-lin" class="form-input"></div>
+    <div style="margin-bottom:10px;"><label class="game-label">Date</label><input type="date" id="in-date" onchange="loadData(this.value)"></div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+      <div><label class="game-label">Arrivée</label><input type="time" id="in-time"></div>
+      <div><label class="game-label">Départ</label><input type="time" id="out-time"></div>
     </div>
-    <div style="display: flex; gap: 10px;">
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;">
+      <div><label class="game-label">Début Déj</label><input type="time" id="in-l-out"></div>
+      <div><label class="game-label">Fin Déj</label><input type="time" id="in-l-in"></div>
+    </div>
+    <div style="display:flex; gap:10px;">
       <button onclick="handleDelete()" style="background:#ef4444; color:white; border:none; border-radius:10px; padding:12px; cursor:pointer;">🗑️</button>
-      <button onclick="handleSave()" style="flex:1; background:var(--primary); color:#000; border:none; border-radius:10px; font-weight:800; cursor:pointer;">ENREGISTRER</button>
+      <button onclick="handleSave()" style="flex:1; background:var(--primary); color:white; border:none; border-radius:10px; font-weight:800; cursor:pointer;">ENREGISTRER</button>
     </div>
   </div>
 </div>
@@ -138,126 +147,152 @@
 
   let planningData = {};
   let chart;
-  const DAILY_GOAL_MINS = 450; // 7h30
 
+  // Sync Firestore
   onSnapshot(collection(db, "planning"), (snapshot) => {
     planningData = {};
     snapshot.forEach(doc => { planningData[doc.id] = doc.data(); });
-    calculateGamification();
-    setPeriod('week');
+    calculateRegularity();
+    manualFilter();
   });
 
   const toMins = (t) => { if(!t) return 0; const [h, m] = t.split(':').map(Number); return h * 60 + m; };
   const fromMins = (m) => `${Math.floor(m / 60)}h${(m % 60).toString().padStart(2, '0')}`;
 
-  function calculateGamification() {
+  // GAMIFICATION : FOCUS SUR LA RÉGULARITÉ
+  function calculateRegularity() {
     const dates = Object.keys(planningData).sort().reverse();
     
-    // 1. Calcul de la série (Streak)
+    // Streak (jours consécutifs de saisie)
     let streak = 0;
-    let checkDate = new Date();
-    while(planningData[checkDate.toISOString().split('T')[0]]) {
+    let check = new Date();
+    while(planningData[check.toISOString().split('T')[0]]) {
       streak++;
-      checkDate.setDate(checkDate.getDate() - 1);
+      check.setDate(check.getDate() - 1);
     }
     document.getElementById('streak-count').innerText = `${streak} 🔥`;
+    document.getElementById('total-entries').innerText = `${dates.length} 📖`;
 
-    // 2. Calcul du Rang
-    const totalHours = Object.values(planningData).reduce((acc, d) => acc + computeDayMins(d), 0) / 60;
-    let rank = "Explorateur";
-    if(totalHours > 50) rank = "Gardien du Temps";
-    if(totalHours > 200) rank = "Maître Chronos";
-    if(totalHours > 500) rank = "Légende Temporelle";
+    // Rangs basés sur la sagesse (nombre de saisies)
+    let rank = "Apprenti de l'Équilibre";
+    if(dates.length > 10) rank = "Organisateur Serein";
+    if(dates.length > 30) rank = "Maître du Temps";
+    if(dates.length > 100) rank = "Sage de la Mesure";
     document.getElementById('user-rank').innerText = rank;
-
-    // 3. Barre de progression du jour (ou du dernier jour saisi)
-    const todayStr = new Date().toISOString().split('T')[0];
-    const todayData = planningData[todayStr] || planningData[dates[0]];
-    if(todayData) {
-      const worked = computeDayMins(todayData);
-      const percent = Math.min(Math.round((worked / DAILY_GOAL_MINS) * 100), 100);
-      document.getElementById('goal-bar').style.width = percent + '%';
-      document.getElementById('goal-percent').innerText = percent + '%';
-      if(percent >= 100) document.getElementById('goal-bar').style.background = '#10b981';
-    }
   }
 
-  function computeDayMins(d) {
-    let w = toMins(d.out) - toMins(d.in);
-    if(d.lunchOut && d.lunchIn) w -= (toMins(d.lunchIn) - toMins(d.lunchOut));
-    return Math.max(w, 0);
-  }
-
-  window.setPeriod = (type) => {
-    const start = new Date();
-    if(type === 'week') start.setDate(start.getDate() - 7);
-    else start.setMonth(start.getMonth() - 1);
-    const startStr = start.toISOString().split('T')[0];
-    const endStr = new Date().toISOString().split('T')[0];
-    
+  window.manualFilter = () => {
+    const start = document.getElementById('filter-start').value;
+    const end = document.getElementById('filter-end').value;
     const filtered = Object.entries(planningData)
-      .filter(([date]) => date >= startStr && date <= endStr)
+      .filter(([date]) => date >= start && date <= end)
       .sort((a,b) => a[0].localeCompare(b[0]));
     
-    updateStats(filtered);
-    updateChart(filtered);
-    updateHistory(filtered);
-    document.querySelectorAll('.btn-period').forEach(b => b.classList.toggle('active', b.innerText.toLowerCase().includes(type)));
+    updateDisplay(filtered);
   };
 
-  function updateStats(entries) {
-    if(!entries.length) return;
-    let sumIn = 0, sumOut = 0, totalWork = 0;
+  window.setPeriod = (type) => {
+    const end = new Date();
+    const start = new Date();
+    if(type === 'week') start.setDate(end.getDate() - 7);
+    else start.setMonth(end.getMonth() - 1);
+    
+    document.getElementById('filter-start').value = start.toISOString().split('T')[0];
+    document.getElementById('filter-end').value = end.toISOString().split('T')[0];
+    document.querySelectorAll('.btn-period').forEach(b => b.classList.toggle('active', b.innerText.toLowerCase().includes(type)));
+    manualFilter();
+  };
+
+  function updateDisplay(entries) {
+    if(!entries.length) {
+      document.getElementById('stat-avg-work').innerText = "0h00";
+      return;
+    }
+
+    let totalMins = 0;
     entries.forEach(([_, d]) => {
-      sumIn += toMins(d.in); sumOut += toMins(d.out);
-      totalWork += computeDayMins(d);
+      let daily = toMins(d.out) - toMins(d.in);
+      if(d.lunchOut && d.lunchIn) daily -= (toMins(d.lunchIn) - toMins(d.lunchOut));
+      totalMins += Math.max(daily, 0);
     });
-    document.getElementById('stat-avg-in').innerText = fromMins(Math.round(sumIn / entries.length)).replace('h', ':');
-    document.getElementById('stat-avg-out').innerText = fromMins(Math.round(sumOut / entries.length)).replace('h', ':');
-    document.getElementById('prod-score').innerText = Math.round((totalWork / (entries.length * DAILY_GOAL_MINS)) * 100) + '%';
-  }
 
-  function updateHistory(entries) {
-    const list = document.getElementById('details-list');
-    list.innerHTML = entries.reverse().map(([date, d]) => `
-      <div class="detail-item">
-        <div>${date.split('-').reverse().slice(0,2).join('/')}</div>
-        <div style="color:var(--fg-muted)">${d.in} > ${d.out}</div>
-        <div style="font-weight:bold; color:var(--primary)">${fromMins(computeDayMins(d))}</div>
-      </div>
-    `).join('');
-  }
+    document.getElementById('stat-avg-work').innerText = fromMins(Math.round(totalMins / entries.length));
+    document.getElementById('stat-total-period').innerText = `Total période : ${fromMins(totalMins)}`;
 
-  function updateChart(entries) {
+    // Update Chart
     const ctx = document.getElementById('mainChart').getContext('2d');
     if (chart) chart.destroy();
     chart = new Chart(ctx, {
       type: 'line',
-      data: { 
-        labels: entries.map(e => e[0].split('-').reverse().slice(0,2).join('/')), 
-        datasets: [{ data: entries.map(e => (computeDayMins(e[1])/60).toFixed(2)), borderColor: '#38bdf8', tension: 0.4, fill: true, backgroundColor: 'rgba(56,189,248,0.1)' }] 
+      data: {
+        labels: entries.map(e => e[0].split('-').reverse().slice(0,2).join('/')),
+        datasets: [{ data: entries.map(e => {
+          let d = e[1];
+          let w = toMins(d.out) - toMins(d.in);
+          if(d.lunchOut && d.lunchIn) w -= (toMins(d.lunchIn) - toMins(d.lunchOut));
+          return (w/60).toFixed(2);
+        }), borderColor: '#38bdf8', tension: 0.4, fill: true, backgroundColor: 'rgba(56,189,248,0.1)' }]
       },
       options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
     });
+
+    // Update History
+    document.getElementById('details-list').innerHTML = entries.reverse().map(([date, d]) => {
+      let w = toMins(d.out) - toMins(d.in);
+      if(d.lunchOut && d.lunchIn) w -= (toMins(d.lunchIn) - toMins(d.lunchOut));
+      return `<div class="detail-row">
+        <div>${date.split('-').reverse().join('/')}</div>
+        <div style="color:var(--fg-muted)">${d.in}-${d.out}</div>
+        <div style="font-weight:bold">${fromMins(w)}</div>
+      </div>`;
+    }).join('');
   }
 
-  window.toggleModal = (s) => document.getElementById('modal').classList.toggle('active', s);
+  // UI ACTIONS
+  window.toggleModal = (s) => {
+    document.getElementById('modal').classList.toggle('active', s);
+    if(s) {
+      const d = new Date().toISOString().split('T')[0];
+      document.getElementById('in-date').value = d;
+      loadData(d);
+    }
+  };
+
+  window.loadData = (date) => {
+    const d = planningData[date] || { in:'', out:'', lunchOut:'', lunchIn:'' };
+    document.getElementById('in-time').value = d.in || '';
+    document.getElementById('out-time').value = d.out || '';
+    document.getElementById('in-l-out').value = d.lunchOut || '';
+    document.getElementById('in-l-in').value = d.lunchIn || '';
+  };
+
   window.handleSave = async () => {
-    const d = document.getElementById('input-date').value;
-    const data = { in: document.getElementById('input-in').value, out: document.getElementById('input-out').value, lunchOut: document.getElementById('input-lout').value, lunchIn: document.getElementById('input-lin').value };
-    await setDoc(doc(db, "planning", d), data);
-    if(computeDayMins(data) >= DAILY_GOAL_MINS) confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+    const date = document.getElementById('in-date').value;
+    const data = {
+      in: document.getElementById('in-time').value,
+      out: document.getElementById('out-time').value,
+      lunchOut: document.getElementById('in-l-out').value,
+      lunchIn: document.getElementById('in-l-in').value
+    };
+    await setDoc(doc(db, "planning", date), data);
+    confetti({ particleCount: 80, spread: 50, origin: { y: 0.8 } });
     toggleModal(false);
   };
+
   window.handleDelete = async () => {
-    const d = document.getElementById('input-date').value;
-    if(confirm("Supprimer ?")) { await deleteDoc(doc(db, "planning", d)); toggleModal(false); }
+    const date = document.getElementById('in-date').value;
+    if(confirm("Supprimer ?")) { await deleteDoc(doc(db, "planning", date)); toggleModal(false); }
   };
-  window.loadExistingData = (date) => {
-    const d = planningData[date] || { in: '', out: '', lunchOut: '', lunchIn: '' };
-    document.getElementById('input-in').value = d.in; document.getElementById('input-out').value = d.out;
-    document.getElementById('input-lout').value = d.lunchOut; document.getElementById('input-lin').value = d.lunchIn;
+
+  // Theme Toggle
+  document.getElementById('themeToggle').onclick = () => {
+    const current = document.documentElement.getAttribute('data-theme');
+    const target = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', target);
+    document.getElementById('themeToggle').innerText = target === 'dark' ? '🌙' : '☀️';
   };
+
+  setPeriod('month');
 </script>
 </body>
 </html>
