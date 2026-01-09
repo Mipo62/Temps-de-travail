@@ -1,6 +1,6 @@
 {
-  "name": "Temps de Travail",
-  "short_name": "Travail",
+  "name": "Working Time",
+  "short_name": "Work Time",
   "description": "Gestion et suivi du temps de travail",
   "start_url": "./index.html",
   "display": "standalone",
