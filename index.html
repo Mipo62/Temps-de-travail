@@ -10,70 +10,86 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-    :root {
-      --bg-dark: #0a0e1a; --bg-surface: rgba(15, 23, 42, 0.6); --bg-elevated: rgba(30, 41, 59, 0.8);<!DOCTYPE html>
-<html lang="fr" data-theme="dark">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Working Time</title>
-  <link rel="manifest" href="./manifest.json">
-  <meta name="theme-color" content="#2c3e50">
-  <link rel="apple-touch-icon" href="icon-192.png">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
     :root {
       --bg-dark: #0a0e1a; --bg-surface: rgba(15, 23, 42, 0.6); --bg-elevated: rgba(30, 41, 59, 0.8);
       --fg: #f1f5f9; --fg-muted: #94a3b8; --primary: #38bdf8; --primary-glow: rgba(56, 189, 248, 0.2);
       --accent-green: #10b981; --border: rgba(148, 163, 184, 0.15); --radius-sm: 12px; --radius-md: 16px; --radius-lg: 20px;
     }
+
     [data-theme="light"] {
       --bg-dark: #f8fafc; --bg-surface: rgba(255, 255, 255, 0.7); --bg-elevated: rgba(255, 255, 255, 0.9);
       --fg: #0f172a; --fg-muted: #64748b; --border: rgba(148, 163, 184, 0.2);
     }
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, var(--bg-dark) 0%, #1e293b 100%); color: var(--fg); min-height: 100vh; padding: 16px; }
+    body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, var(--bg-dark) 0%, #1e293b 100%); color: var(--fg); min-height: 100vh; padding: 16px; transition: background 0.3s; }
     .container { max-width: 540px; margin: 0 auto; }
+
+    /* Login & Offline status */
     #login-view { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 80vh; text-align: center; }
     #app-content { display: none; }
-    .icon-box { background: var(--primary); color: #0a0e1a; width: 42px; height: 42px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 1.2rem; }
-    #save-feedback { text-align: center; color: var(--accent-green); font-weight: 600; margin-top: 15px; opacity: 0; transition: 0.4s; }
+    #offline-status { position: fixed; top: 0; left: 0; width: 100%; padding: 4px; text-align: center; font-size: 0.7rem; font-weight: bold; background: var(--accent-green); color: #000; z-index: 1000; display: none; }
+    #offline-status.offline { background: #ef4444; color: #fff; display: block; }
+
+    /* Icons style "Blue Buttons" */
+    .icon-box { background: var(--primary); color: #0a0e1a; width: 42px; height: 42px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 1.2rem; box-shadow: 0 4px 10px var(--primary-glow); }
+
+    /* Feedback message centré */
+    #save-feedback { text-align: center; color: var(--accent-green); font-weight: 600; font-size: 0.95rem; margin-top: 15px; min-height: 1.2em; opacity: 0; transition: opacity 0.4s; }
+
+    /* UI Common */
     .header { margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; }
     .greeting { font-size: 1.5rem; font-weight: 700; background: linear-gradient(135deg, var(--primary) 0%, #a78bfa 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 20px; }
+    .card { background: var(--bg-surface); backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
     .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 15px; }
-    .stat-item { background: var(--bg-elevated); padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border); }
-    .stat-label { font-size: 0.7rem; color: var(--fg-muted); text-transform: uppercase; margin-bottom: 4px; }
+    .stat-item { background: var(--bg-elevated); padding: 14px; border-radius: var(--radius-md); border: 1px solid var(--border); }
+    .stat-label { font-size: 0.7rem; color: var(--fg-muted); text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.05em; }
     .stat-value { font-size: 1.1rem; font-weight: 700; color: var(--primary); }
+
     .tabs { display: flex; gap: 8px; background: var(--bg-surface); padding: 6px; border-radius: var(--radius-md); margin-bottom: 20px; }
     .tab { flex: 1; padding: 12px; border: none; background: transparent; color: var(--fg-muted); font-weight: 600; cursor: pointer; border-radius: var(--radius-sm); }
     .tab.active { background: var(--primary); color: #0a0e1a; }
-    .form-group { margin-bottom: 15px; }
-    .form-label { display: flex; align-items: center; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; }
+
+    .form-group { margin-bottom: 18px; }
+    .form-label { display: flex; align-items: center; font-size: 0.9rem; font-weight: 600; margin-bottom: 10px; }
     .form-input { width: 100%; padding: 12px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--fg); font-size: 1rem; }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .btn { width: 100%; padding: 14px; border: none; border-radius: var(--radius-sm); font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; }
+
+    .btn { width: 100%; padding: 14px; border: none; border-radius: var(--radius-sm); font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; transition: 0.2s; }
     .btn-primary { background: var(--primary); color: #0a0e1a; }
     .btn-secondary { background: var(--bg-elevated); color: var(--fg); border: 1px solid var(--border); }
-    .chart-container { height: 200px; }
+
+    .period-selector { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 15px; }
+    .period-btn { padding: 8px 12px; border: 1px solid var(--border); background: var(--bg-elevated); color: var(--fg-muted); border-radius: 8px; cursor: pointer; font-size: 0.75rem; }
+    .period-btn.active { background: var(--primary); color: #0a0e1a; border-color: var(--primary); }
+
+    .chart-container { height: 220px; width: 100%; margin-top: 10px; }
     .view { display: none; }
     .view.active { display: block; }
     #user-photo { width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--primary); cursor: pointer; }
   </style>
 </head>
 <body>
+  <div id="offline-status">HORS-LIGNE</div>
+
   <div class="container">
     <div id="login-view">
       <h1 class="greeting">Working Time</h1>
-      <p style="margin: 20px 0; color: var(--fg-muted)">Synchronisez vos données avec Google</p>
+      <p style="margin: 20px 0; color: var(--fg-muted)">Synchronisez vos heures sur tous vos appareils</p>
       <button id="loginBtn" class="btn btn-primary">Connexion avec Google</button>
     </div>
 
     <div id="app-content">
       <header class="header">
-        <div><h1 class="greeting" id="user-greeting">Bonjour !</h1></div>
-        <img id="user-photo" src="" alt="Profil">
+        <div>
+          <h1 class="greeting" id="user-greeting">Bonjour !</h1>
+          <p style="color: var(--fg-muted); font-size: 0.8rem;">Prêt pour la journée ?</p>
+        </div>
+        <div style="display: flex; gap: 12px; align-items: center;">
+          <div id="themeSwitch" style="cursor: pointer; font-size: 1.2rem;">🌙</div>
+          <img id="user-photo" src="" alt="Profil" title="Se déconnecter">
+        </div>
       </header>
 
       <div class="tabs">
@@ -83,21 +99,58 @@
 
       <div id="view-saisie" class="view active">
         <div class="card">
-          <div class="form-group"><label class="form-label"><span class="icon-box">📅</span> Date</label><input type="date" id="workDate" class="form-input"></div>
-          <div class="form-group"><label class="form-label"><span class="icon-box">⏱️</span> Horaires</label><div class="form-row"><input type="time" id="inTime" class="form-input"><input type="time" id="outTime" class="form-input"></div></div>
-          <div class="form-group"><label class="form-label"><span class="icon-box">🍽️</span> Pause</label><div class="form-row"><input type="time" id="lunchOut" class="form-input"><input type="time" id="lunchIn" class="form-input"></div></div>
+          <div class="form-group">
+            <label class="form-label"><span class="icon-box">📅</span> Date</label>
+            <input type="date" id="workDate" class="form-input">
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span class="icon-box">⏱️</span> Horaires</label>
+            <div class="form-row">
+              <input type="time" id="inTime" class="form-input">
+              <input type="time" id="outTime" class="form-input">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span class="icon-box">🍽️</span> Pause Déjeuner</label>
+            <div class="form-row">
+              <input type="time" id="lunchOut" class="form-input">
+              <input type="time" id="lunchIn" class="form-input">
+            </div>
+          </div>
           <button id="saveBtn" class="btn btn-primary">💾 Enregistrer</button>
+          <button id="clearBtn" class="btn btn-secondary">🗑️ Effacer le jour</button>
           <div id="save-feedback"></div>
         </div>
       </div>
 
       <div id="view-analyse" class="view">
         <div class="card">
-          <div class="stats-grid">
-            <div class="stat-item"><div class="stat-label">Total</div><div class="stat-value" id="totalHours">0h</div></div>
-            <div class="stat-item"><div class="stat-label">Moy/J</div><div class="stat-value" id="avgDay">--</div></div>
+          <div class="period-selector">
+            <button class="period-btn" data-days="7">Semaine</button>
+            <button class="period-btn active" data-days="30">Mois</button>
+            <button class="period-btn" data-days="365">Année</button>
+            <button class="period-btn" data-days="9999">Tout</button>
           </div>
+          
+          <div class="stat-label">Statistiques période sélectionnée</div>
+          <div class="stats-grid">
+            <div class="stat-item"><div class="stat-label">Heures Totales</div><div class="stat-value" id="totalHours">0h</div></div>
+            <div class="stat-item"><div class="stat-label">Moy/Jour</div><div class="stat-value" id="avgDay">--</div></div>
+            <div class="stat-item"><div class="stat-label">Arrivée Moy.</div><div class="stat-value" id="avgIn">--</div></div>
+            <div class="stat-item"><div class="stat-label">Départ Moy.</div><div class="stat-value" id="avgOut">--</div></div>
+            <div class="stat-item"><div class="stat-label">Pause Moy.</div><div class="stat-value" id="avgLunch">--</div></div>
+            <div class="stat-item"><div class="stat-label">Nb Jours</div><div class="stat-value" id="workedDays">0</div></div>
+          </div>
+        </div>
+
+        <div class="card">
           <div class="chart-container"><canvas id="workChart"></canvas></div>
+        </div>
+
+        <div class="btn-group">
+          <button id="exportBtn" class="btn btn-secondary">📤 Exporter JSON</button>
+          <button id="importBtn" class="btn btn-secondary">📥 Importer JSON</button>
+          <input type="file" id="fileInput" style="display: none;" accept=".json">
         </div>
       </div>
     </div>
@@ -105,10 +158,9 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, doc, setDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
     import { getAuth, signInWithRedirect, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    // Configuration Firebase extraite de tes images
     const firebaseConfig = {
       apiKey: "AIzaSyD4anyZUy4jmXG1f6nvuWzphHdtR1mYg2c",
       authDomain: "working-time-33018.firebaseapp.com",
@@ -126,33 +178,37 @@
     let planningData = {};
     let currentUser = null;
     let chart = null;
+    let filterDays = 30;
 
     // --- AUTHENTIFICATION ---
     onAuthStateChanged(auth, (user) => {
+      const loginView = document.getElementById('login-view');
+      const appContent = document.getElementById('app-content');
+      
       if (user) {
         currentUser = user;
-        document.getElementById('login-view').style.display = 'none';
-        document.getElementById('app-content').style.display = 'block';
+        loginView.style.display = 'none';
+        appContent.style.display = 'block';
         document.getElementById('user-greeting').textContent = `Bonjour ${user.displayName.split(' ')[0]} 👋`;
         document.getElementById('user-photo').src = user.photoURL;
         initDataSync();
       } else {
         currentUser = null;
-        document.getElementById('login-view').style.display = 'flex';
-        document.getElementById('app-content').style.display = 'none';
+        loginView.style.display = 'flex';
+        appContent.style.display = 'none';
       }
     });
 
-    // Écouteur pour le bouton de connexion (corrigé)
     const loginBtn = document.getElementById('loginBtn');
     if (loginBtn) {
       loginBtn.addEventListener('click', () => signInWithRedirect(auth, provider));
     }
 
-    // Écouteur pour la déconnexion
     const userPhoto = document.getElementById('user-photo');
     if (userPhoto) {
-      userPhoto.addEventListener('click', () => confirm("Déconnexion ?") && signOut(auth));
+      userPhoto.addEventListener('click', () => {
+        if (confirm("Voulez-vous vous déconnecter ?")) signOut(auth);
+      });
     }
 
     // --- SYNCHRONISATION ---
@@ -165,8 +221,10 @@
       });
     }
 
+    // --- CALCULS ---
     const toMins = (t) => { if(!t) return 0; const [h, m] = t.split(':').map(Number); return h * 60 + m; };
     const formatH = (mins) => `${Math.floor(mins / 60)}h${(mins % 60).toString().padStart(2, '0')}`;
+    const formatTime = (mins) => `${Math.floor(mins / 60).toString().padStart(2, '0')}:${(mins % 60).toString().padStart(2, '0')}`;
 
     function computeMinutes(day) {
       if (!day || !day.in || !day.out) return 0;
@@ -176,232 +234,44 @@
     }
 
     function updateDisplay() {
-      const entries = Object.entries(planningData).sort((a,b) => a[0].localeCompare(b[0]));
-      const values = entries.map(e => e[1]);
+      const now = new Date();
+      const cutoff = new Date();
+      cutoff.setDate(now.getDate() - filterDays);
+
+      const filtered = Object.entries(planningData)
+        .filter(([date]) => new Date(date) >= cutoff)
+        .sort((a, b) => a[0].localeCompare(b[0]));
+
+      const values = filtered.map(e => e[1]);
       const totalMins = values.reduce((acc, d) => acc + computeMinutes(d), 0);
+      
       document.getElementById('totalHours').textContent = formatH(totalMins);
+      document.getElementById('workedDays').textContent = values.length;
       document.getElementById('avgDay').textContent = values.length ? formatH(Math.round(totalMins / values.length)) : '--';
-      updateChart(entries);
+
+      let sumIn = 0, sumOut = 0, sumLunch = 0, cIn = 0, cOut = 0, cL = 0;
+      values.forEach(d => {
+        if(d.in) { sumIn += toMins(d.in); cIn++; }
+        if(d.out) { sumOut += toMins(d.out); cOut++; }
+        if(d.lunchOut && d.lunchIn) { sumLunch += (toMins(d.lunchIn) - toMins(d.lunchOut)); cL++; }
+      });
+
+      document.getElementById('avgIn').textContent = cIn ? formatTime(Math.round(sumIn / cIn)) : '--';
+      document.getElementById('avgOut').textContent = cOut ? formatTime(Math.round(sumOut / cOut)) : '--';
+      document.getElementById('avgLunch').textContent = cL ? formatH(Math.round(sumLunch / cL)) : '--';
+
+      updateChart(filtered);
+      loadDay();
     }
 
     function updateChart(entries) {
       const ctx = document.getElementById('workChart').getContext('2d');
-      const labels = entries.slice(-7).map(e => e[0].slice(5));
-      const data = entries.slice(-7).map(e => computeMinutes(e[1]) / 60);
-      if (chart) { chart.data.labels = labels; chart.data.datasets[0].data = data; chart.update(); }
-      else { chart = new Chart(ctx, { type: 'line', data: { labels, datasets: [{ data, borderColor: '#38bdf8', tension: 0.4 }] }, options: { responsive: true, maintainAspectRatio: false } }); }
-    }
-
-    // Bouton enregistrer
-    const saveBtn = document.getElementById('saveBtn');
-    if (saveBtn) {
-      saveBtn.addEventListener('click', async () => {
-        const date = document.getElementById('workDate').value;
-        const data = { userId: currentUser.uid, in: document.getElementById('inTime').value, out: document.getElementById('outTime').value, lunchOut: document.getElementById('lunchOut').value, lunchIn: document.getElementById('lunchIn').value };
-        if (!date || !data.in || !data.out) return alert("Date et horaires requis !");
-        await setDoc(doc(db, "planning", date), data);
-        const feedback = document.getElementById('save-feedback');
-        feedback.textContent = `✅ Enregistré ! (${formatH(computeMinutes(data))})`;
-        feedback.style.opacity = "1";
-        setTimeout(() => feedback.style.opacity = "0", 3000);
-      });
-    }
-
-    // Tabs
-    document.querySelectorAll('.tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        document.querySelectorAll('.tab, .view').forEach(el => el.classList.remove('active'));
-        tab.classList.add('active');
-        document.getElementById(`view-${tab.dataset.view}`).classList.add('active');
-      });
-    });
-
-    document.getElementById('workDate').value = new Date().toISOString().slice(0, 10);
-  </script>
-</body>
-</html>
-      --fg: #f1f5f9; --fg-muted: #94a3b8; --primary: #38bdf8; --primary-glow: rgba(56, 189, 248, 0.2);
-      --accent-green: #10b981; --border: rgba(148, 163, 184, 0.15); --radius-sm: 12px; --radius-md: 16px; --radius-lg: 20px;
-    }
-    [data-theme="light"] {
-      --bg-dark: #f8fafc; --bg-surface: rgba(255, 255, 255, 0.7); --bg-elevated: rgba(255, 255, 255, 0.9);
-      --fg: #0f172a; --fg-muted: #64748b; --border: rgba(148, 163, 184, 0.2);
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, var(--bg-dark) 0%, #1e293b 100%); color: var(--fg); min-height: 100vh; padding: 16px; }
-    .container { max-width: 540px; margin: 0 auto; }
-    
-    /* Login Screen */
-    #login-view { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 80vh; text-align: center; }
-    #app-content { display: none; }
-
-    /* Icons style "Blue Buttons" */
-    .icon-box { background: var(--primary); color: #0a0e1a; width: 42px; height: 42px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 1.2rem; box-shadow: 0 4px 10px var(--primary-glow); }
-
-    /* Feedback message centré */
-    #save-feedback { text-align: center; color: var(--accent-green); font-weight: 600; margin-top: 15px; opacity: 0; transition: 0.4s; height: 1.2em; }
-
-    .header { margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; }
-    .greeting { font-size: 1.5rem; font-weight: 700; background: linear-gradient(135deg, var(--primary) 0%, #a78bfa 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 20px; }
-    .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 15px; }
-    .stat-item { background: var(--bg-elevated); padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border); }
-    .stat-label { font-size: 0.7rem; color: var(--fg-muted); text-transform: uppercase; margin-bottom: 4px; }
-    .stat-value { font-size: 1.1rem; font-weight: 700; color: var(--primary); }
-    
-    .tabs { display: flex; gap: 8px; background: var(--bg-surface); padding: 6px; border-radius: var(--radius-md); margin-bottom: 20px; }
-    .tab { flex: 1; padding: 12px; border: none; background: transparent; color: var(--fg-muted); font-weight: 600; cursor: pointer; border-radius: var(--radius-sm); }
-    .tab.active { background: var(--primary); color: #0a0e1a; }
-
-    .form-group { margin-bottom: 15px; }
-    .form-label { display: flex; align-items: center; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; }
-    .form-input { width: 100%; padding: 12px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--fg); font-size: 1rem; }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    
-    .btn { width: 100%; padding: 14px; border: none; border-radius: var(--radius-sm); font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; }
-    .btn-primary { background: var(--primary); color: #0a0e1a; }
-    .btn-secondary { background: var(--bg-elevated); color: var(--fg); border: 1px solid var(--border); }
-    
-    .chart-container { height: 200px; }
-    .view { display: none; }
-    .view.active { display: block; }
-    #user-photo { width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--primary); cursor: pointer; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div id="login-view">
-      <h1 class="greeting">Working Time</h1>
-      <p style="margin: 20px 0; color: var(--fg-muted)">Connectez-vous pour synchroniser vos données</p>
-      <button id="loginBtn" class="btn btn-primary">Connexion avec Google</button>
-    </div>
-
-    <div id="app-content">
-      <header class="header">
-        <div><h1 class="greeting" id="user-greeting">Bonjour !</h1></div>
-        <img id="user-photo" src="" alt="Profil" title="Se déconnecter">
-      </header>
-
-      <div class="tabs">
-        <button class="tab active" data-view="saisie">📝 Saisie</button>
-        <button class="tab" data-view="analyse">📊 Analyse</button>
-      </div>
-
-      <div id="view-saisie" class="view active">
-        <div class="card">
-          <div class="form-group"><label class="form-label"><span class="icon-box">📅</span> Date</label><input type="date" id="workDate" class="form-input"></div>
-          <div class="form-group"><label class="form-label"><span class="icon-box">⏱️</span> Horaires</label><div class="form-row"><input type="time" id="inTime" class="form-input"><input type="time" id="outTime" class="form-input"></div></div>
-          <div class="form-group"><label class="form-label"><span class="icon-box">🍽️</span> Pause</label><div class="form-row"><input type="time" id="lunchOut" class="form-input"><input type="time" id="lunchIn" class="form-input"></div></div>
-          <button id="saveBtn" class="btn btn-primary">💾 Enregistrer</button>
-          <div id="save-feedback"></div>
-        </div>
-      </div>
-
-      <div id="view-analyse" class="view">
-        <div class="card">
-          <div class="stats-grid">
-            <div class="stat-item"><div class="stat-label">Total Heures</div><div class="stat-value" id="totalHours">0h</div></div>
-            <div class="stat-item"><div class="stat-label">Moy/Jour</div><div class="stat-value" id="avgDay">--</div></div>
-          </div>
-          <div class="chart-container"><canvas id="workChart"></canvas></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, doc, setDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-    import { getAuth, signInWithRedirect, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyD4anyZUy4jmXG1f6nvuWzphHdtR1mYg2c",
-      authDomain: "working-time-33018.firebaseapp.com",
-      projectId: "working-time-33018",
-      storageBucket: "working-time-33018.firebasestorage.app",
-      messagingSenderId: "172774543780",
-      appId: "1:172774543780:web:3827b920e202c4c94bf131"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
-    const provider = new GoogleAuthProvider();
-
-    let planningData = {};
-    let currentUser = null;
-    let chart = null;
-
-    // --- GESTION DE L'AUTHENTIFICATION ---
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        currentUser = user;
-        document.getElementById('login-view').style.display = 'none';
-        document.getElementById('app-content').style.display = 'block';
-        document.getElementById('user-greeting').textContent = `Bonjour ${user.displayName.split(' ')[0]} 👋`;
-        document.getElementById('user-photo').src = user.photoURL;
-        initDataSync();
-      } else {
-        currentUser = null;
-        document.getElementById('login-view').style.display = 'flex';
-        document.getElementById('app-content').style.display = 'none';
-      }
-    });
-
-    // Connexion par redirection (beaucoup plus fiable que popup)
-    document.getElementById('loginBtn').addEventListener('click', () => {
-      signInWithRedirect(auth, provider);
-    });
-
-    // Déconnexion
-    document.getElementById('user-photo').addEventListener('click', () => {
-      if(confirm("Voulez-vous vous déconnecter ?")) signOut(auth);
-    });
-
-    // --- SYNCHRONISATION FIRESTORE ---
-    function initDataSync() {
-      const q = query(collection(db, "planning"), where("userId", "==", currentUser.uid));
-      onSnapshot(q, (snapshot) => {
-        planningData = {};
-        snapshot.forEach(doc => { planningData[doc.id] = doc.data(); });
-        updateDisplay();
-      }, (error) => console.error("Erreur Firestore:", error));
-    }
-
-    // --- LOGIQUE METIER ---
-    const toMins = (t) => { if(!t) return 0; const [h, m] = t.split(':').map(Number); return h * 60 + m; };
-    const formatH = (mins) => `${Math.floor(mins / 60)}h${(mins % 60).toString().padStart(2, '0')}`;
-
-    function computeMinutes(day) {
-      if (!day || !day.in || !day.out) return 0;
-      let total = toMins(day.out) - toMins(day.in);
-      if (day.lunchOut && day.lunchIn) total -= (toMins(day.lunchIn) - toMins(day.lunchOut));
-      return Math.max(total, 0);
-    }
-
-    function updateDisplay() {
-      const entries = Object.entries(planningData).sort((a,b) => a[0].localeCompare(b[0]));
-      const values = entries.map(e => e[1]);
-      const totalMins = values.reduce((acc, d) => acc + computeMinutes(d), 0);
-      
-      document.getElementById('totalHours').textContent = formatH(totalMins);
-      document.getElementById('workedDays'); // Juste pour l'ID
-      document.getElementById('avgDay').textContent = values.length ? formatH(Math.round(totalMins / values.length)) : '--';
-      
-      updateChart(entries);
-    }
-
-    function updateChart(entries) {
-      const ctx = document.getElementById('workChart').getContext('2d');
-      const displayEntries = entries.slice(-7);
+      const displayEntries = entries.slice(-10);
       const labels = displayEntries.map(e => e[0].slice(5));
       const data = displayEntries.map(e => computeMinutes(e[1]) / 60);
 
-      if (chart) {
-        chart.data.labels = labels;
-        chart.data.datasets[0].data = data;
-        chart.update();
-      } else {
+      if (chart) { chart.data.labels = labels; chart.data.datasets[0].data = data; chart.update(); }
+      else {
         chart = new Chart(ctx, {
           type: 'line',
           data: { labels, datasets: [{ data, borderColor: '#38bdf8', tension: 0.4, fill: true, backgroundColor: 'rgba(56, 189, 248, 0.1)' }] },
@@ -410,41 +280,76 @@
       }
     }
 
-    // --- ENREGISTREMENT ---
+    // --- ACTIONS ---
     document.getElementById('saveBtn').addEventListener('click', async () => {
       const date = document.getElementById('workDate').value;
-      const data = {
-        userId: currentUser.uid,
-        in: document.getElementById('inTime').value,
-        out: document.getElementById('outTime').value,
-        lunchOut: document.getElementById('lunchOut').value,
-        lunchIn: document.getElementById('lunchIn').value
-      };
-
-      if (!date || !data.in || !data.out) {
-        alert("Veuillez remplir la date et les horaires !");
-        return;
-      }
-
+      const data = { userId: currentUser.uid, in: document.getElementById('inTime').value, out: document.getElementById('outTime').value, lunchOut: document.getElementById('lunchOut').value, lunchIn: document.getElementById('lunchIn').value };
+      if (!date || !data.in || !data.out) return alert("Date et horaires requis !");
       await setDoc(doc(db, "planning", date), data);
-      
       const feedback = document.getElementById('save-feedback');
-      feedback.textContent = `✅ Travail du jour : ${formatH(computeMinutes(data))}`;
+      feedback.textContent = `✅ Tu as travaillé ${formatH(computeMinutes(data))} ce jour.`;
       feedback.style.opacity = "1";
       setTimeout(() => feedback.style.opacity = "0", 3000);
     });
 
-    // --- NAVIGATION ---
+    document.getElementById('clearBtn').addEventListener('click', async () => {
+      const date = document.getElementById('workDate').value;
+      if (date && confirm("Effacer ce jour ?")) await deleteDoc(doc(db, "planning", date));
+    });
+
+    document.querySelectorAll('.period-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        filterDays = parseInt(btn.dataset.days);
+        updateDisplay();
+      });
+    });
+
+    document.getElementById('exportBtn').addEventListener('click', () => {
+      const blob = new Blob([JSON.stringify(planningData, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `backup.json`; a.click();
+    });
+
+    document.getElementById('importBtn').addEventListener('click', () => document.getElementById('fileInput').click());
+    document.getElementById('fileInput').addEventListener('change', (e) => {
+      const reader = new FileReader();
+      reader.onload = async (ev) => {
+        const data = JSON.parse(ev.target.result);
+        for (const [date, val] of Object.entries(data)) { val.userId = currentUser.uid; await setDoc(doc(db, "planning", date), val); }
+        alert("Importation réussie !");
+      };
+      reader.readAsText(e.target.files[0]);
+    });
+
     document.querySelectorAll('.tab').forEach(tab => {
       tab.addEventListener('click', () => {
         document.querySelectorAll('.tab, .view').forEach(el => el.classList.remove('active'));
         tab.classList.add('active');
         document.getElementById(`view-${tab.dataset.view}`).classList.add('active');
+        if(tab.dataset.view === 'analyse') setTimeout(() => updateDisplay(), 100);
       });
     });
 
+    document.getElementById('themeSwitch').addEventListener('click', () => {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+      document.getElementById('themeSwitch').textContent = isDark ? '☀️' : '🌙';
+    });
+
+    function loadDay() {
+      const date = document.getElementById('workDate').value;
+      const day = planningData[date] || { in: '', out: '', lunchOut: '', lunchIn: '' };
+      document.getElementById('inTime').value = day.in || '';
+      document.getElementById('outTime').value = day.out || '';
+      document.getElementById('lunchOut').value = day.lunchOut || '';
+      document.getElementById('lunchIn').value = day.lunchIn || '';
+    }
+
+    document.getElementById('workDate').addEventListener('change', loadDay);
     document.getElementById('workDate').value = new Date().toISOString().slice(0, 10);
+    window.addEventListener('online', () => document.getElementById('offline-status').classList.remove('offline'));
+    window.addEventListener('offline', () => document.getElementById('offline-status').classList.add('offline'));
   </script>
 </body>
 </html>
-
